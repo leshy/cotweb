@@ -6,10 +6,9 @@
   "main": "dist/index.js",
   "module": "dist/cotwebsocket.esm.js",
   "typings": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "type": "module",
+  "files": ["dist", "src"],
+  "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
     "analyze": "size-limit --why",
     "build": "dts build",
@@ -28,13 +27,13 @@
     "printWidth": 80,
     "semi": true,
     "singleQuote": true,
-    "trailingComma": false
+    "trailingComma": "none"
   },
   "jest": {
     "testEnvironment": "node"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=17"
   },
   "size-limit": [
     {
@@ -51,6 +50,7 @@
     "@tsconfig/recommended": "^1.0.2",
     "@types/engine.io": "^3.1.7",
     "@types/express": "^4.17.17",
+    "@types/ol": "^7.0.0",
     "dts-cli": "^2.0.3",
     "husky": "^8.0.3",
     "parcel": "^2.9.2",
@@ -59,9 +59,14 @@
     "typescript": "^5.1.3"
   },
   "dependencies": {
+    "@tak-ps/node-cot": "^3.5.1",
     "engine.io": "^6.4.2",
+    "engine.io-client": "^6.4.0",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "lsh-foundation": "^0.1.4"
+    "fast-xml-parser": "^4.2.4",
+    "lsh-foundation": "^0.1.4",
+    "ol": "^7.4.0",
+    "xml-stream": "^0.4.5"
   }
 }
