@@ -44,29 +44,22 @@ export function XMLtoCOT_(input: XML): COT {
 }
 
 
-
-
 type CB = (branch: any) => any
-//@ts-ignore
 const depthFirstMap = (cb: CB) => {
     const step = (branch: any, descend: boolean = false): any => {
-        console.log("STEP", descend, branch)
         if (utils.isDict(branch)) {
             if (descend) {
-                return Object.entries(branch).reduce((acc, [key, value]) => {
-                    //@ts-ignore
+                return Object.entries(branch).reduce((acc: types.Dict<any>, [key, value]) => {
                     acc[key] = step(value, false)
                     return acc
                 }, {})
             } else {
-                //@ts-ignore
                 return step(cb(branch), true)
             }
         } else if (utils.isArray(branch)) {
 
             if (descend) {
-                // @ts-ignore
-                return branch.map(step)
+                return branch.map((entry: any) => step(entry))
             } else {
                 return step(cb(branch), true)
             }

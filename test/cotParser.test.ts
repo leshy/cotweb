@@ -121,8 +121,6 @@ describe('cotParser', () => {
                 ce: '9999999.0',
                 le: '9999999.0'
             },
-
-
             detail: {
                 status: { readiness: 'true' },
                 archive: [{}, {}],
