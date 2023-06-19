@@ -19,8 +19,6 @@ describe('cotParser', () => {
         })
     })
 
-
-
     it('XMLtoJson', () => {
         expect(cotParser.XMLtoJson(samples.xml.camera)).toEqual({
             event: {
@@ -109,17 +107,18 @@ describe('cotParser', () => {
         expect(cotMsg).toEqual({
             version: '2.0',
             uid: 'bf4fe367-c422-403c-aaf0-918a5b6a8e63',
+            atype: 'sensor point',
             type: 'b-m-p-s-p-loc',
             how: 'h-g-i-g-o',
-            time: '2023-06-16T11:37:45.047Z',
-            start: '2023-06-16T11:37:45.047Z',
-            stale: '2024-06-15T11:37:45.047Z',
+            time: new Date('2023-06-16T11:37:45.047Z'),
+            start: new Date('2023-06-16T11:37:45.047Z'),
+            stale: new Date('2024-06-15T11:37:45.047Z'),
             point: {
-                lat: '45.813012',
-                lon: '15.978569',
-                hae: '178.0',
-                ce: '9999999.0',
-                le: '9999999.0'
+                lat: 45.813012,
+                lon: 15.978569,
+                hae: 178,
+                ce: 9999999,
+                le: 9999999
             },
             detail: {
                 status: { readiness: 'true' },
@@ -171,6 +170,4 @@ describe('cotParser', () => {
             }
         })
     })
-
-
 })

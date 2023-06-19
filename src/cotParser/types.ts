@@ -4,14 +4,14 @@ export type COT = {
     uid: string
     type: string
     how: string
-    time: string
-    start: string
-    stale: string
+    time: Date
+    start: Date
+    stale: Date
     point: {
-        lat: string
-        lon: string
-        hae: string
-        ce: string
-        le: string
+        lat: number
+        lon: number
+        hae: number
+        ce: number
+        le: number
     }
 }

@@ -8,6 +8,7 @@ import * as geojson from 'geojson'
 const root = path.join(__dirname, '../')
 import * as cotParser from './cotParser'
 import * as connection from './connection'
+import * as util from './util'
 
 type Config = configSystem.AppConfig & {
   apiKey: string
@@ -64,7 +65,7 @@ export const init = async () => {
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static(path.join(config.rootDir, 'web/static')));
 
-  app.get('/', function(req, res, next) {
+  app.get(' test/', function(req, res, next) {
     res.render('index', { title: 'Express' });
   });
 
@@ -129,6 +130,7 @@ export const init = async () => {
 
 
 }
+
 
 init()
 

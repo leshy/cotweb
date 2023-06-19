@@ -1,8 +1,11 @@
-import { omit } from 'lodash'
+import { omit, flow } from 'lodash'
+import { get } from 'lodash/fp'
 import xmljs from 'xml-js'
 import * as geojson from 'geojson'
 import { COT } from './types'
+import { resolveType } from './checks'
 import { types, utils } from 'lsh-foundation'
+import * as path from 'path'
 
 // https://github.com/dB-SPL/cot-types/blob/main/CoTtypes.xml
 
@@ -44,45 +47,72 @@ export function XMLtoCOT_(input: XML): COT {
 }
 
 
-type CB = (branch: any) => any
+type CB = (branch: any, dictpath: string) => any
 const depthFirstMap = (cb: CB) => {
-    const step = (branch: any, descend: boolean = false): any => {
+    const step = (branch: any, dictpath: string = "/", descend: boolean = false): any => {
         if (utils.isDict(branch)) {
             if (descend) {
                 return Object.entries(branch).reduce((acc: types.Dict<any>, [key, value]) => {
-                    acc[key] = step(value, false)
+                    acc[key] = step(value, path.join(dictpath, key), false)
                     return acc
                 }, {})
             } else {
-                return step(cb(branch), true)
+                return step(cb(branch, dictpath), dictpath, true)
             }
         } else if (utils.isArray(branch)) {
-
             if (descend) {
-                return branch.map((entry: any) => step(entry))
+                return branch.map((entry: any) => step(entry, dictpath, false))
             } else {
-                return step(cb(branch), true)
+                return step(cb(branch, dictpath), dictpath, true)
             }
         } else {
-            return cb(branch)
+            return cb(branch, dictpath)
         }
     }
     return step
 }
 
 
-export function XMLtoCOT(input: XML): COT {
-    const parsed = xmljs.xml2js(input, { compact: true })
-    return depthFirstMap((branch: types.BasicDict) => {
-        //        console.log("PROCESSING BRACNCH", branch)
+
+export const XMLtoCOT = flow([
+    (xml: string) => xmljs.xml2js(xml, { compact: true }),
+
+    depthFirstMap((branch: types.BasicType | types.Dict<types.BasicType>, dictPath: string) => {
         if (utils.isDict(branch) && branch._attributes) {
+            //@ts-ignore
             return { ...(branch._attributes as types.BasicDict), ...omit(branch, ['_attributes']) }
         } else {
             return branch
         }
-        // @ts-ignore
-    })(parsed.event)
-}
+    }),
+
+    get('event'),
+
+    depthFirstMap((branch: types.BasicType | types.Dict<types.BasicType>, dictPath: string) => {
+        const time = (branch: string) => new Date(branch)
+
+        const pathTransforms: { [key: string]: (branch: any) => any } = {
+            "/stale": time,
+            "/start": time,
+            "/time": time,
+            "/point/lat": parseFloat,
+            "/point/lon": parseFloat,
+            "/point/hae": parseFloat,
+            "/point/ce": parseFloat,
+            "/point/le": parseFloat,
+        }
+
+        const transform = pathTransforms[dictPath]
+        if (transform) { return transform(branch) }
+        else { return branch }
+    }),
+
+    // @ts-ignore
+    (cot: COT): COT => ({ ...cot, atype: resolveType(cot.type) })
+
+
+])
+
 
 
 export function COTtoJSON(input: COT): geojson.GeoJSON {
