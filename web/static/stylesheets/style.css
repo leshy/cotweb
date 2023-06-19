@@ -1,11 +1,12 @@
-html, body {
+html,
+body {
   margin: 0;
   height: 100%;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 14px 'Lucida Grande', Helvetica, Arial, sans-serif;
 }
 
 a {
-  color: #00B7FF;
+  color: #00b7ff;
 }
 
 #map {
@@ -14,4 +15,13 @@ a {
   bottom: 0;
   width: 100%;
   height: 100%;
+}
+
+.ol-attribution {
+  visibility: hidden !important;
+}
+
+.bw {
+  filter: sepia(50%) hue-rotate(120deg);
+  filter: sepia(10%) hue-rotate(0deg);
 }

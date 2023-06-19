@@ -1,0 +1,12 @@
+<event version="2.0" uid="ANDROID-cdc97979a5447ede" type="a-f-G-U-C" how="m-g" time="2023-06-15T18:59:43.584Z" start="2023-06-15T18:59:43.584Z" stale="2023-06-15T19:05:58.584Z">
+	<point lat="45.780938" lon="15.963918" hae="174.5" ce="1.7" le="9999999.0"/>
+	<detail>
+		<takv os="31" version="4.6.1.7 (f1924d21).1657814638-CIV" device="ULEFONE POWER ARMOR 18T" platform="ATAK-CIV"/>
+		<contact endpoint="*:-1:stcp" callsign="ivn"/>
+		<uid Droid="ivn"/>
+		<precisionlocation altsrc="GPS" geopointsrc="GPS"/>
+		<__group role="Team Member" name="Cyan"/>
+		<status battery="17"/>
+		<track course="164.11510169886566" speed="0.0"/>
+	</detail>
+</event>

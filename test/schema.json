@@ -1,0 +1,159 @@
+{
+    "type": "object",
+    "required": [
+        "event"
+    ],
+    "properties": {
+        "event": {
+            "type": "object",
+            "required": [
+                "_attributes",
+                "point"
+            ],
+            "properties": {
+                "_attributes": {
+                    "type": "object",
+                    "required": [
+                        "version",
+                        "uid",
+                        "type",
+                        "time",
+                        "start",
+                        "stale"
+                    ],
+                    "properties": {
+                        "version": {
+                            "type": "string"
+                        },
+                        "uid": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "time": {
+                            "type": "string"
+                        },
+                        "start": {
+                            "type": "string"
+                        },
+                        "stale": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "detail": {
+                    "type": "object",
+                    "properties": {
+                        "remarks": {
+                            "type": "object",
+                            "properties": {
+                                "_attributes": {
+                                    "type": "object"
+                                },
+                                "_text": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "track": {
+                            "type": "object",
+                            "required": [
+                                "_attributes"
+                            ],
+                            "properties": {
+                                "_attributes": {
+                                    "type": "object",
+                                    "required": [
+                                        "course",
+                                        "speed"
+                                    ],
+                                    "properties": {
+                                        "course": {
+                                            "type": "string",
+                                            "description": "Speed measured in degrees from north"
+                                        },
+                                        "speed": {
+                                            "type": "string",
+                                            "description": "Speed measured in meters/second"
+                                        },
+                                        "slope": {
+                                            "type": "string",
+                                            "description": "Vertical component of motion vector. Measured in degrees. Negative indicates downward motion."
+                                        },
+                                        "eCourse": {
+                                            "type": "string",
+                                            "description": "1-sigma error on a Gaussian distribution associated with the course attribute"
+                                        },
+                                        "eSpeed": {
+                                            "type": "string",
+                                            "description": "1-sigma error on a Gaussian distribution associated with the speed attribute"
+                                        },
+                                        "eSlope": {
+                                            "type": "string",
+                                            "description": "1-sigma error on a Gaussian distribution associated with the slope attribute"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "usericon": {
+                            "type": "object",
+                            "required": [
+                                "_attributes"
+                            ],
+                            "properties": {
+                                "_attributes": {
+                                    "type": "object",
+                                    "required": [
+                                        "iconsetpath"
+                                    ],
+                                    "properties": {
+                                        "iconsetpath": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "point": {
+                    "type": "object",
+                    "required": [
+                        "_attributes"
+                    ],
+                    "properties": {
+                        "_attributes": {
+                            "type": "object",
+                            "required": [
+                                "lat",
+                                "lon",
+                                "hae",
+                                "ce",
+                                "le"
+                            ],
+                            "properties": {
+                                "lat": {
+                                    "type": "string"
+                                },
+                                "lon": {
+                                    "type": "string"
+                                },
+                                "hae": {
+                                    "type": "string"
+                                },
+                                "ce": {
+                                    "type": "string"
+                                },
+                                "le": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
