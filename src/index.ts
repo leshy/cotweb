@@ -2,10 +2,7 @@ import { appCore, generator } from 'lsh-foundation'
 import * as path from 'path'
 const root = path.join(__dirname, '../')
 import * as types from './types'
-import * as cotParser from './cotParser'
-import * as connection from './connection'
-import * as subSystemsDefs from './subsystems'
-import { keys, find } from 'lodash'
+import * as systems from './subsystems'
 
 export const init = async () => {
   const { logger, config } = await appCore.init<types.AppConfig>({
@@ -13,7 +10,12 @@ export const init = async () => {
     configDir: path.join(root, 'config'),
     verbose: true,
     defaultConfig: {
-      cotServer: {
+
+      httpServer: {
+        port: 3001
+      },
+
+      cotConnection: {
         tcp: {
           host: "localhost"
         }
@@ -27,42 +29,38 @@ export const init = async () => {
     logger: logger,
   }
 
+  const initializingSystems: { [key: string]: Promise<types.RunningSubSystem> } = {}
 
-  const runningSubSystems: { [name: string]: types.RunningSubSystem } = {}
+  const initSubsystem: types.InitSubsystem<any> = (subsystem: types.SubSystem<any, any>) => {
+    const existing = initializingSystems[subsystem.name]
+    if (existing) { return existing }
 
-  const runSubSystems = async (subSystems: { [name: string]: types.SubSystem<any> }) => {
-    for (const [name, subSystem] of Object.entries(subSystems)) {
-
-      const batch: Promise<types.RunningSubSystem>[] = []
-      const running = keys(runningSubSystems)
-
-      if (!subSystem.deps) {
-        batch.push(subSystem.init(logger.child({ subsystem: name }), config[name] || {}, appEnv))
-      } else {
-
-
-
-      }
-
-
-      runningSubSystems[name] = subSystem(appEnv)
-    }
-
-
+    const childLogger = logger.child({ subSystem: subsystem.name })
+    return subsystem.init({
+      logger: childLogger,
+      config: config[subsystem.name] || {},
+      env: appEnv,
+      initSubsystem
+    }).then((runningSubsystem) => {
+      childLogger.info("init " + subsystem.name)
+      return runningSubsystem
+    })
   }
 
+  await initSubsystem(systems.cotParser)
+  await initSubsystem(systems.webSocketServer)
 
+  //const connection = subSystems.websocket.init({}, appEnv)
 
+  // const events = generator.pipe(
+  //   connection.connect(logger, config.cotServer),
+  //   cotParser.xmlStreamSplit,
+  //   generator.map(cotParser.XMLtoCOT)) as AsyncGenerator<types.COT>
 
-  const events = generator.pipe(
-    connection.connect(logger, config.cotServer),
-    cotParser.xmlStreamSplit,
-    generator.map(cotParser.XMLtoCOT)) as AsyncGenerator<types.COT>
-
-  for await (const msg of events) {
-    console.log("RCV", msg)
-    //io.emit("event", msg)
-  }
+  // for await (const msg of events) {
+  //   console.log("RCV", msg)
+  //   //io.emit("event", msg)
+  // }
 
 }
 

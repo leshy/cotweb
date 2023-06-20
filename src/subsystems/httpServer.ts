@@ -1,22 +1,23 @@
 import * as path from 'path'
 import express from "express";
-import { createServer } from "http";
+import { createServer, Server } from "http";
 import { configSystem } from 'lsh-foundation'
-
-import sio from 'socket.io';
 import createError from 'http-errors'
 
-import { SubSystem } from '../types';
+import { SubSystem, RunningSubSystem } from '../types';
 
 export type Config = {
     port: number
 }
 
-export const httpServer: SubSystem<Config, {}> = {
-    name: 'httpServer',
-    init: async (_, logger, config, env) => {
-        logger.info("initializing")
+export class RunningHttpServer implements RunningSubSystem {
+    constructor(public readonly http: Server) { }
+    stop = async () => this.http.close()
+}
 
+export const httpServer: SubSystem<Config, RunningHttpServer> = {
+    name: 'httpServer',
+    init: async ({ logger, config, env }) => {
         const app = express();
         const httpServer = createServer(app);
 
@@ -51,25 +52,7 @@ export const httpServer: SubSystem<Config, {}> = {
             res.send('Hello World!')
         })
 
-        const io = new sio.Server(httpServer)
-        // @ts-ignore
-        io.on('connection', (socket) => {
-            logger.info("socket connected")
-            io.emit("msg", "hello there")
-            socket.emit("msg", "hi socket")
-            //socket.emit("event", sampleObject)
-            // @ts-ignore
-            socket.on('close', () => { });
-        })
-
         httpServer.listen(config.port)
-
-        return {
-            stop: async () => {
-                logger.info("closing")
-                io.close()
-                httpServer.close()
-            }
-        }
+        return new RunningHttpServer(httpServer)
     }
 }

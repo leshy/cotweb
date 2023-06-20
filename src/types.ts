@@ -1,15 +1,8 @@
 import { configSystem, logger } from 'lsh-foundation'
-import * as connection from './connection'
+import { RunningHttpServer } from './subsystems/httpServer'
 
 export type AppConfig = configSystem.AppConfig & {
     apiKey: string
-    cotServer: connection.Config
-}
-
-export type AppEnv = {
-    logger: logger.Logger,
-    env: configSystem.Env,
-    rootDir: string
 }
 
 export type Connection<EVENT> = AsyncGenerator<EVENT>
@@ -31,15 +24,26 @@ export type COT = {
     }
 }
 
+export type InitSubsystem<RUNNING extends RunningSubSystem> = (subSystem: SubSystem<any, RUNNING>) => Promise<RUNNING>
 
-type Dependencies = { [name: string]: SubSystem<any, any> }
+export type SubSystemInitArgs<CONFIG> = {
+    logger: logger.Logger,
+    config: CONFIG,
+    env: AppEnv,
+    initSubsystem: InitSubsystem<any>
+}
 
-export type SubSystem<CONFIG, DEPS extends Dependencies> = {
+export type SubSystem<CONFIG, RUNNING extends RunningSubSystem> = {
     name: string
-    deps?: DEPS
-    init: (deps: { [name in keyof DEPS]: SubSystem<any, any> }, logger: logger.Logger, config: CONFIG, env: AppEnv) => Promise<RunningSubSystem>;
+    init: (args: SubSystemInitArgs<CONFIG>) => Promise<RUNNING>;
 }
 
 export interface RunningSubSystem {
     stop: () => Promise<any>
+}
+
+export type AppEnv = {
+    logger: logger.Logger,
+    env: configSystem.Env,
+    rootDir: string,
 }

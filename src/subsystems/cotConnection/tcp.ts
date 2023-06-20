@@ -8,12 +8,12 @@ export const defaultConfig: Config = {
     port: 8087
 }
 
-export const connect = async function*(logger: logger.Logger, config: Config): types.Connection<any> {
+export const connect = async (logger: logger.Logger, config: Config): Promise<types.Connection> => {
     const client = new net.Socket();
 
     // @ts-ignore
     client.connect({ ...defaultConfig, config }, function() {
-        logger.info('TCP connection established with the server.')
+        logger.info('TCP connection established with the COT server.')
         client.write('Hello, server.');
     })
 
@@ -21,8 +21,14 @@ export const connect = async function*(logger: logger.Logger, config: Config): t
         return
     });
 
-    for await (const chunk of client) {
-        logger.info(`Data in: ${chunk.toString()}.`);
-        yield chunk
+    return {
+        // @ts-ignore
+        stream: async function*() {
+            for await (const chunk of client) {
+                logger.info(`Data in: ${chunk.toString()}.`);
+                yield chunk
+            }
+        },
+        close: async () => client.destroy()
     }
 }
