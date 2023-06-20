@@ -1,0 +1,13 @@
+{
+  "system": {
+    "httpServer": {
+      "port": 3001
+    },
+
+    "cotConnection": {
+      "tcp": {
+        "host": "localhost"
+      }
+    }
+  }
+}

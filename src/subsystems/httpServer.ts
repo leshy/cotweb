@@ -10,12 +10,12 @@ export type Config = {
     port: number
 }
 
-export class RunningHttpServer implements RunningSubSystem {
+export class HttpServer implements RunningSubSystem {
     constructor(public readonly http: Server) { }
     stop = async () => this.http.close()
 }
 
-export const httpServer: SubSystem<Config, RunningHttpServer> = {
+export const httpServer: SubSystem<Config, HttpServer> = {
     name: 'httpServer',
     init: async ({ logger, config, env }) => {
         const app = express();
@@ -26,9 +26,11 @@ export const httpServer: SubSystem<Config, RunningHttpServer> = {
 
         app.use(express.json());
         app.use(express.urlencoded({ extended: false }));
+
+        logger.info("static path: " + path.join(env.rootDir, 'web/static'))
         app.use(express.static(path.join(env.rootDir, 'web/static')));
 
-        app.get(' test/', function(req, res, next) {
+        app.get('/', function(req, res, next) {
             res.render('index', { title: 'Express' });
         });
 
@@ -53,6 +55,6 @@ export const httpServer: SubSystem<Config, RunningHttpServer> = {
         })
 
         httpServer.listen(config.port)
-        return new RunningHttpServer(httpServer)
+        return new HttpServer(httpServer)
     }
 }

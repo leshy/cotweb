@@ -1,9 +1,12 @@
 import { configSystem, logger } from 'lsh-foundation'
-import { RunningHttpServer } from './subsystems/httpServer'
+import * as systems from './subsystems'
+
 
 export type AppConfig = configSystem.AppConfig & {
     apiKey: string
+    system: { [name: string]: { enabled: boolean } }
 }
+
 
 export type Connection<EVENT> = AsyncGenerator<EVENT>
 
