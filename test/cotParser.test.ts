@@ -1,6 +1,7 @@
 import { inspect } from 'util'
 import * as samples from './samples'
 import * as cotParser from '../src/cotParser'
+import { cotEntity } from '../src/cotParser/cotEntityEnum'
 
 describe('cotParser', () => {
     it('XMLtoGeoJson', () => {
@@ -107,7 +108,7 @@ describe('cotParser', () => {
         expect(cotMsg).toEqual({
             version: '2.0',
             uid: 'bf4fe367-c422-403c-aaf0-918a5b6a8e63',
-            atype: 'sensor point',
+            atype: cotEntity["sensor point"],
             type: 'b-m-p-s-p-loc',
             how: 'h-g-i-g-o',
             time: new Date('2023-06-16T11:37:45.047Z'),

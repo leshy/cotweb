@@ -4,11 +4,10 @@ import express from "express";
 import { createServer } from "http";
 import sio from 'socket.io';
 import createError from 'http-errors'
-import * as geojson from 'geojson'
 const root = path.join(__dirname, '../')
+import { COT } from './types'
 import * as cotParser from './cotParser'
 import * as connection from './connection'
-import * as util from './util'
 
 type Config = configSystem.AppConfig & {
   apiKey: string
@@ -103,34 +102,17 @@ export const init = async () => {
 
   httpServer.listen(3001)
 
-  // const parser = async function*(input: AsyncGenerator<Buffer>) {
-  //   for await (const data of input) {
-  //     const parsed = xmljs.xml2js(data.toString(), { compact: true })
-  //     //@ts-ignore
-  //     const event = parsed.event
-  //     if (event.constructor === Array) {
-  //       for (const entry of event) {
-  //         yield entry
-  //       }
-  //     } else {
-  //       yield event
-  //     }
-  //   }
-  // }
-
   const events = generator.pipe(
     connection.connect(logger, config.cotServer),
     cotParser.xmlStreamSplit,
-    generator.map(cotParser.COTtoJSON)) as AsyncGenerator<geojson.Feature>
+    generator.map(cotParser.XMLtoCOT)) as AsyncGenerator<COT>
 
   for await (const msg of events) {
     console.log("RCV", msg)
     io.emit("event", msg)
   }
 
-
 }
-
 
 init()
 

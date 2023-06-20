@@ -2,7 +2,7 @@ import { omit, flow } from 'lodash'
 import { get } from 'lodash/fp'
 import xmljs from 'xml-js'
 import * as geojson from 'geojson'
-import { COT } from './types'
+import { COT } from '../types'
 import { resolveType } from './checks'
 import { types, utils } from 'lsh-foundation'
 import * as path from 'path'
@@ -115,7 +115,7 @@ export const XMLtoCOT = flow([
 
 
 
-export function COTtoJSON(input: COT): geojson.GeoJSON {
+export function COTtoGeoJSON(input: COT): geojson.GeoJSON {
     const feature: geojson.Feature = {
         //@ts-ignore
         id: input.event._attributes.uid,
