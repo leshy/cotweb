@@ -11,7 +11,7 @@ export const friend = makeCheck(/^a-f-/)
 export const hostile = makeCheck(/^a-h-/)
 export const unknown = makeCheck(/^a-u-/)
 
-
+// super dumb matching of atom entities only, need to rewise this
 export function resolveType(cotType: string): string {
     const cotTypeA = cotType.split("-")
     if (cotTypeA[0] == "a") { cotTypeA[1] = "." }

@@ -7,8 +7,6 @@ import { resolveType } from './checks'
 import { types, utils } from 'lsh-foundation'
 import * as path from 'path'
 
-// https://github.com/dB-SPL/cot-types/blob/main/CoTtypes.xml
-
 export const xmlStreamSplit = async function*(input: AsyncGenerator<Buffer>) {
     let totalData: string = ""
     for await (const data of input) {
@@ -72,8 +70,6 @@ const depthFirstMap = (cb: CB) => {
     return step
 }
 
-
-
 export const XMLtoCOT = flow([
     (xml: string) => xmljs.xml2js(xml, { compact: true }),
 
@@ -109,11 +105,7 @@ export const XMLtoCOT = flow([
 
     // @ts-ignore
     (cot: COT): COT => ({ ...cot, atype: resolveType(cot.type) })
-
-
 ])
-
-
 
 export function COTtoGeoJSON(input: COT): geojson.GeoJSON {
     const feature: geojson.Feature = {

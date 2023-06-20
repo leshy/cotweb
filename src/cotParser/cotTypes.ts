@@ -1,5 +1,8 @@
 import { cotEntity } from './cotEntityEnum'
 
+// https://github.com/dB-SPL/cot-types/blob/main/CoTtypes.xml
+// https://github.com/FreeTAKTeam/FreeTakServer/blob/master/FreeTAKServer/model/RestMessages/RestEnumerations.py
+
 export const cotTypes = {
   "a-.-A": cotEntity["Air Air Track"],
   "a-.-A-C": cotEntity["Air Civ"],
