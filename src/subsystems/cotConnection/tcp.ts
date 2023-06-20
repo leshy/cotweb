@@ -1,6 +1,8 @@
 import net from 'net';
 import * as types from './types'
-import { logger } from 'lsh-foundation'
+import { COT } from '../../types'
+import { logger, generator } from 'lsh-foundation'
+import { XMLtoCOT, xmlStreamSplit } from '../../cotParser'
 export type Config = net.SocketConnectOpts
 
 export const defaultConfig: Config = {
@@ -11,8 +13,10 @@ export const defaultConfig: Config = {
 export const connect = async (logger: logger.Logger, config: Config): Promise<types.Connection> => {
     const client = new net.Socket();
 
+    const cfg = { ...defaultConfig, ...config }
+    console.log("CFG IS", cfg)
     // @ts-ignore
-    client.connect({ ...defaultConfig, config }, function() {
+    client.connect(cfg, function() {
         logger.info('TCP connection established with the COT server.')
         client.write('Hello, server.');
     })
@@ -22,12 +26,17 @@ export const connect = async (logger: logger.Logger, config: Config): Promise<ty
     });
 
     return {
-        // @ts-ignore
-        stream: async function*() {
-            for await (const chunk of client) {
-                yield chunk
-            }
-        },
+        stream: (): AsyncGenerator<COT> =>
+            generator.pipe(
+                (async function*() {
+                    for await (const chunk of client) {
+                        yield chunk
+                    }
+                })(),
+                xmlStreamSplit,
+                generator.map(XMLtoCOT)
+            ) as AsyncGenerator<COT>,
+
         close: async () => client.destroy()
     }
 }

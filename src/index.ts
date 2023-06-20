@@ -41,14 +41,8 @@ export const init = async () => {
     defaultConfig:
     {
       system: {
-        httpServer: {
-          port: 3001
-        },
-
-        cotConnection: {
-          tcp: {
-            host: "localhost",
-          }
+        webServer: {
+          enabled: true,
         }
       }
     }
@@ -67,7 +61,7 @@ export const init = async () => {
     if (existing) { return existing }
 
     const childLogger = logger.child({ subSystem: subsystem.name })
-    return subsystem.init({
+    const initializing = subsystem.init({
       logger: childLogger,
       config: config.system[subsystem.name] || {},
       env: appEnv,
@@ -76,6 +70,10 @@ export const init = async () => {
       childLogger.info("init " + subsystem.name)
       return runningSubsystem
     })
+
+    initializingSystems[subsystem.name] = initializing
+    return initializing
+
   }
 
   const runSystems =

@@ -1,4 +1,5 @@
+import * as types from '../../types'
 export type Connection = {
-    stream: () => AsyncGenerator<string>,
+    stream: () => AsyncGenerator<types.COT>,
     close: () => Promise<any>,
 }

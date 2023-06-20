@@ -3,6 +3,9 @@ import express from "express";
 import { createServer, Server } from "http";
 import { configSystem } from 'lsh-foundation'
 import createError from 'http-errors'
+import sio from 'socket.io';
+
+import { cotPipeline } from './cotPipeline'
 
 import { SubSystem, RunningSubSystem } from '../types';
 
@@ -13,16 +16,19 @@ export type Config = {
     }
 }
 
-export class HttpServer implements RunningSubSystem {
-    constructor(public readonly http: Server) { }
-    stop = async () => this.http.close()
+export class WebServer implements RunningSubSystem {
+    constructor(public readonly http: Server, public readonly io: sio.Server) { }
+    stop = async () => {
+        this.io.close()
+        this.http.close()
+    }
 }
 
-export const httpServer: SubSystem<Config, HttpServer> = {
-    name: 'httpServer',
-    init: async ({ logger, config, env }) => {
+export const webServer: SubSystem<Config, WebServer> = {
+    name: 'webServer',
+    init: async ({ logger, config, env, initSubsystem }) => {
         const app = express();
-        const httpServer = createServer(app);
+        const server = createServer(app);
 
         app.set('views', path.join(env.rootDir, 'web/views'));
         app.set('view engine', 'ejs');
@@ -57,7 +63,21 @@ export const httpServer: SubSystem<Config, HttpServer> = {
             res.send('Hello World!')
         })
 
-        httpServer.listen(config.port)
-        return new HttpServer(httpServer)
+
+        const pipeline = await initSubsystem(cotPipeline)
+
+
+        const io = new sio.Server(server);
+
+        io.on('connection', (socket) => {
+            logger.info('socket connected');
+            socket.emit('msg', 'hi socket');
+            socket.on('close', () => {
+                logger.info('socket closed');
+            });
+        });
+
+        server.listen(config.port)
+        return new WebServer(server, io)
     }
 }

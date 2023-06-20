@@ -1,6 +1,5 @@
-import { httpServer } from './httpServer';
-import { webSocketServer } from './webSocketServer';
-import { cotConnection } from './cotConnection';
-import { cotParser } from './cotParser';
+import { webServer } from './webServer';
+import { cotConnection } from './cotConnection/index';
+import { cotPipeline } from './cotPipeline';
 
-export { httpServer, webSocketServer, cotConnection, cotParser };
+export { webServer, cotConnection, cotPipeline };
