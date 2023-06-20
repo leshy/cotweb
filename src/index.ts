@@ -39,7 +39,23 @@ export const init = async () => {
     name: 'cot-websocket',
     configDir: path.join(root, 'config'),
     verbose: true,
-    defaultConfig: require(path.join(root, 'defaultConfig.json'))
+    defaultConfig:
+    {
+      system: {
+        httpServer: {
+          port: 3001
+        },
+
+        cotConnection: {
+          tcp: {
+            host: "localhost",
+          }
+        }
+      }
+    }
+
+
+
   })
 
   const appEnv: types.AppEnv = {
@@ -65,7 +81,6 @@ export const init = async () => {
       return runningSubsystem
     })
   }
-
 
   const runSystems =
     argSystems && argSystems.length

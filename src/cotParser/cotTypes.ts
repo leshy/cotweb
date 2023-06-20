@@ -2,7 +2,6 @@ import { cotEntity } from './cotEntityEnum'
 
 // https://github.com/dB-SPL/cot-types/blob/main/CoTtypes.xml
 // https://github.com/FreeTAKTeam/FreeTakServer/blob/master/FreeTAKServer/model/RestMessages/RestEnumerations.py
-
 export const cotTypes = {
   "a-.-A": cotEntity["Air Air Track"],
   "a-.-A-C": cotEntity["Air Civ"],
@@ -298,6 +297,7 @@ export const cotTypes = {
   "a-.-G-I-r-i": cotEntity["Gnd Structure Road Improved"],
   "a-.-G-I-r-ra": cotEntity["Gnd Structure Road Rest Area"],
   "a-.-G-I-r-u": cotEntity["Gnd Structure Road Unimproved"],
+  "a-.-G-U-C": cotEntity["Gnd Combat unit"],
   "a-.-G-U-C-A": cotEntity["Gnd Combat armor"],
   "a-.-G-U-C-A-A": cotEntity["Gnd Combat Armor anti armor"],
   "a-.-G-U-C-A-W": cotEntity["Gnd Combat Armor armor, wheeled"],

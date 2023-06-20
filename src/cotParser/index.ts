@@ -35,15 +35,6 @@ export function XMLtoJson(input: XML): xmljs.ElementCompact {
     return xmljs.xml2js(input, { compact: true })
 }
 
-export function XMLtoCOT_(input: XML): COT {
-    const parsed = xmljs.xml2js(input, { compact: true })
-    const flattenAttributes = (input: xmljs.ElementCompact): types.BasicDict =>
-        ({ ...input._attributes, ...omit(input, ['_attributes']) })
-
-    // @ts-ignore
-    return { ...flattenAttributes(parsed.event), point: flattenAttributes(parsed.event.point) }
-}
-
 
 type CB = (branch: any, dictpath: string) => any
 const depthFirstMap = (cb: CB) => {

@@ -25,7 +25,6 @@ export const connect = async (logger: logger.Logger, config: Config): Promise<ty
         // @ts-ignore
         stream: async function*() {
             for await (const chunk of client) {
-                logger.info(`Data in: ${chunk.toString()}.`);
                 yield chunk
             }
         },

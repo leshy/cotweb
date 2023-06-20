@@ -293,6 +293,7 @@ export enum cotEntity {
     "Gnd Structure Road Improved",
     "Gnd Structure Road Rest Area",
     "Gnd Structure Road Unimproved",
+    "Gnd Combat unit",
     "Gnd Combat armor",
     "Gnd Combat Armor anti armor",
     "Gnd Combat Armor armor, wheeled",
