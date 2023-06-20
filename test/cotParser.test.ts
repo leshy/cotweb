@@ -1,4 +1,3 @@
-import { inspect } from 'util'
 import * as samples from './samples'
 import * as cotParser from '../src/cotParser'
 import { cotEntity } from '../src/cotParser/cotEntityEnum'
@@ -111,9 +110,9 @@ describe('cotParser', () => {
             atype: cotEntity["sensor point"],
             type: 'b-m-p-s-p-loc',
             how: 'h-g-i-g-o',
-            time: new Date('2023-06-16T11:37:45.047Z'),
-            start: new Date('2023-06-16T11:37:45.047Z'),
-            stale: new Date('2024-06-15T11:37:45.047Z'),
+            time: 1686915465047,
+            start: 1686915465047,
+            stale: 1718451465047,
             point: {
                 lat: 45.813012,
                 lon: 15.978569,

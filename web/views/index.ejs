@@ -3,6 +3,12 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <script type="text/javascript">
+     window.config = <%- JSON.stringify(config) %>
+    </script>
+
+    <script type="text/javascript" url="js/clientside.js"></script>
   </head>
   <body>
     <div id="map"></div>

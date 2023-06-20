@@ -76,7 +76,7 @@ export const XMLtoCOT = flow([
     get('event'),
 
     depthFirstMap((branch: types.BasicType | types.Dict<types.BasicType>, dictPath: string) => {
-        const time = (branch: string) => new Date(branch)
+        const time = (branch: string) => new Date(branch).getTime()
 
         const pathTransforms: { [key: string]: (branch: any) => any } = {
             "/stale": time,

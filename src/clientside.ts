@@ -8,42 +8,25 @@ import GeoJSON from 'ol/format/GeoJSON.js';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style.js';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 // import Feature from 'ol/Feature.js';
-import * as olProj from 'ol/proj';
 import KML from 'ol/format/KML.js';
-import { applyStyle, stylefunction } from 'ol-mapbox-style';
+import { applyStyle } from 'ol-mapbox-style';
 
 import VectorTileLayer from 'ol/layer/VectorTile.js';
 import VectorTileSource from 'ol/source/VectorTile.js';
 import MVT from 'ol/format/MVT.js';
 
-
 const socket = io();
 //@ts-ignore
 socket.on('msg', (data) => { console.log('msg', data) })
 
-const key = 'pk.eyJ1IjoibHNoeTMzIiwiYSI6ImNsZ204c3MzaDAzbWkzZW8yaTFjcXljcmMifQ.M-JHfxftZBgU3hTvI58-FA'
-const testEvent = {
-    "id": "ANDROID-cdc97979a5447ede",
-    "type": "Feature",
-    "properties": {
-        "callsign": "ivn",
-        "type": "a-f-G-U-C",
-        "how": "m-g",
-        "time": "2023-06-15T19:22:25.045Z",
-        "start": "2023-06-15T19:22:25.045Z",
-        "stale": "2023-06-15T19:28:40.045Z"
-    },
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-            "15.963757",
-            "45.781002",
-            "173.7"
-        ]
-    }
+
+export type Config = {
+    mapBoxKey: string
 }
 
 
+// @ts-ignore
+const key = (window.config as Config).mapBoxKey
 
 const map = new Map({
     target: 'map',
@@ -63,6 +46,7 @@ const osmLayer = new TileLayer({
 
 var satLayer = new TileLayer({
     source: new XYZ({
+        // @ts-ignore
         url: 'https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v10/tiles/{z}/{x}/{y}?access_token=' + key,
         tileSize: 512
     })
@@ -96,8 +80,6 @@ const addEvent = (data: any) => {
 }
 
 socket.on('event', addEvent)
-
-//addEvent(testEvent)
 
 const image = new CircleStyle({
     radius: 5,

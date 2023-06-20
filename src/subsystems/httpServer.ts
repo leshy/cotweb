@@ -8,6 +8,9 @@ import { SubSystem, RunningSubSystem } from '../types';
 
 export type Config = {
     port: number
+    clientside: {
+        mapBoxKey: string
+    }
 }
 
 export class HttpServer implements RunningSubSystem {
@@ -31,7 +34,7 @@ export const httpServer: SubSystem<Config, HttpServer> = {
         app.use(express.static(path.join(env.rootDir, 'web/static')));
 
         app.get('/', function(req, res, next) {
-            res.render('index', { title: 'Express' });
+            res.render('index', { title: 'Express', config: config.clientside })
         });
 
         // catch 404 and forward to error handler

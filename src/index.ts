@@ -8,10 +8,9 @@ import { appCore } from 'lsh-foundation'
 import * as types from './types'
 import * as systems from './subsystems'
 
+// @ts-ignore
 const { name, version } = require('../package.json')
 const root = path.join(__dirname, '../')
-
-
 
 const parser = new ArgumentParser({
   description: 'Argparse example'
@@ -53,9 +52,6 @@ export const init = async () => {
         }
       }
     }
-
-
-
   })
 
   const appEnv: types.AppEnv = {
@@ -97,30 +93,12 @@ export const init = async () => {
     return
   }
 
-  logger.info(`running systems ${runSystems.join(', ')}`)
-
+  logger.info(`running systems: ${runSystems.join(', ')}`)
 
   await Promise.all(map(runSystems, (systemName) => {
     //@ts-ignore
     initSubsystem(systems[systemName])
   }))
-
-
-  //await initSubsystem(systems.cotParser)
-  //await initSubsystem(systems.webSocketServer)
-
-  //const connection = subSystems.websocket.init({}, appEnv)
-
-  // const events = generator.pipe(
-  //   connection.connect(logger, config.cotServer),
-  //   cotParser.xmlStreamSplit,
-  //   generator.map(cotParser.XMLtoCOT)) as AsyncGenerator<types.COT>
-
-  // for await (const msg of events) {
-  //   console.log("RCV", msg)
-  //   //io.emit("event", msg)
-  // }
-
 }
 
 init()

@@ -15,7 +15,7 @@ export class CotParser implements RunningSubSystem {
     clearStale = () => {
         const now = Date.now()
         for (const [key, entity] of this.entities.entries()) {
-            const diff = now - entity.stale.getTime()
+            const diff = now - entity.stale
             this.logger.debug("stalecounter: " + entity.uid + " " + diff)
             if (diff > 0) {
                 this.entities.delete(key)
