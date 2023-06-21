@@ -1,6 +1,4 @@
-import { generator, logger } from 'lsh-foundation'
-import { XMLtoCOT, xmlStreamSplit } from '../cotParser';
-import { SubSystem, RunningSubSystem, COT } from '../types';
+import { SubSystem, RunningSubSystem, COT, Logger } from '../types';
 import { EventEmitter } from "events";
 
 export type Config = {}
@@ -8,7 +6,7 @@ export type Config = {}
 export class CotPipeline extends EventEmitter implements RunningSubSystem {
     entities: Map<string, COT> = new Map()
 
-    constructor(private readonly logger: logger.Logger) { super() }
+    constructor(private readonly logger: Logger) { super() }
 
     clearStale = () => {
         const now = Date.now()
@@ -16,6 +14,7 @@ export class CotPipeline extends EventEmitter implements RunningSubSystem {
             const diff = now - entity.stale
             this.logger.debug("stalecounter: " + entity.uid + " " + diff)
             if (diff > 0) {
+                this.emit('DEL', entity.uid)
                 this.entities.delete(key)
                 this.logger.info({ uid: entity.uid }, "entity stale: " + entity.uid)
             }
@@ -33,6 +32,7 @@ export class CotPipeline extends EventEmitter implements RunningSubSystem {
                 this.logger.info({ uid: entity.uid }, "entity update: " + entity.uid)
             }
 
+            this.emit('SET', entity)
             this.entities.set(entity.uid, entity)
         }
     }

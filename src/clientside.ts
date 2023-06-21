@@ -5,7 +5,7 @@ import XYZ from 'ol/source/XYZ.js';
 // import OSM from 'ol/source/OSM';
 import { OSM, Vector as VectorSource } from 'ol/source.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style.js';
+import { Circle as CircleStyle, Fill, Stroke, Icon, Style } from 'ol/style.js';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 // import Feature from 'ol/Feature.js';
 import KML from 'ol/format/KML.js';
@@ -15,15 +15,17 @@ import VectorTileLayer from 'ol/layer/VectorTile.js';
 import VectorTileSource from 'ol/source/VectorTile.js';
 import MVT from 'ol/format/MVT.js';
 
-const socket = io();
-//@ts-ignore
-socket.on('msg', (data) => { console.log('msg', data) })
+import Feature from 'ol/Feature.js';
+import Point from 'ol/geom/Point.js';
+import { fromLonLat } from 'ol/proj.js';
+
+import * as types from './types'
+import { StyleLike } from 'ol/style/Style';
 
 
 export type Config = {
     mapBoxKey: string
 }
-
 
 // @ts-ignore
 const key = (window.config as Config).mapBoxKey
@@ -52,7 +54,7 @@ var satLayer = new TileLayer({
     })
 });
 
-const vectorLayer = new VectorTileLayer({
+const mapBoxVectorLayer = new VectorTileLayer({
     declutter: true,
     //    projection: olProj.get('EPSG:4326'),
     source: new VectorTileSource({
@@ -68,120 +70,83 @@ const vectorLayer = new VectorTileLayer({
     })
 })
 
-applyStyle(vectorLayer, 'mapbox://styles/mapbox/dark-v9', { accessToken: key });
+applyStyle(mapBoxVectorLayer, 'mapbox://styles/mapbox/dark-v9', { accessToken: key });
 //applyStyle(vectorLayer, 'mapbox://styles/lshy33/cliyl8l1h002701pe223sg29u', { accessToken: key });
-map.addLayer(vectorLayer)
+map.addLayer(mapBoxVectorLayer)
 
-const addEvent = (data: any) => {
-    console.log('event', data)
-    const feature = new GeoJSON().readFeature(data)
-    console.log("FEATURE", feature)
-    vectorSource.addFeature(feature)
-}
+//const image = new CircleStyle({
+//    radius: 5,
+//    stroke: new Stroke({ color: 'red', width: 1 }),
+//});
 
-socket.on('event', addEvent)
 
-const image = new CircleStyle({
-    radius: 5,
-    stroke: new Stroke({ color: 'red', width: 1 }),
-});
 
 const styles = {
     'Point': new Style({
-        image: image,
-    }),
-    'LineString': new Style({
-        stroke: new Stroke({
-            color: 'green',
-            width: 1,
+        image: new Icon({
+            color: '#8959A8',
+            crossOrigin: 'anonymous',
+            src: 'icons/sensor_location.png',
         }),
-    }),
-    'MultiLineString': new Style({
-        stroke: new Stroke({
-            color: 'green',
-            width: 1,
-        }),
-    }),
-    'MultiPoint': new Style({
-        image: image,
-    }),
-    'MultiPolygon': new Style({
-        stroke: new Stroke({
-            color: 'yellow',
-            width: 1,
-        }),
-        fill: new Fill({
-            color: 'rgba(255, 255, 0, 0.1)',
-        }),
-    }),
-    'Polygon': new Style({
-        stroke: new Stroke({
-            color: 'blue',
-            lineDash: [4],
-            width: 3,
-        }),
-        fill: new Fill({
-            color: 'rgba(0, 0, 255, 0.1)',
-        }),
-    }),
-    'GeometryCollection': new Style({
-        stroke: new Stroke({
-            color: 'magenta',
-            width: 2,
-        }),
-        fill: new Fill({
-            color: 'magenta',
-        }),
-        image: new CircleStyle({
-            radius: 10,
-            stroke: new Stroke({
-                color: 'magenta',
-            }),
-        }),
-    }),
-    'Circle': new Style({
-        stroke: new Stroke({
-            color: 'red',
-            width: 2,
-        }),
-        fill: new Fill({
-            color: 'rgba(255,0,0,0.2)',
-        }),
-    }),
-};
+    })
+}
 
-// const styleFunction = function(feature: any) {
-//     //@ts-ignore
-//     return styles[feature.getGeometry().getType()];
-// }
-
-// const vectorLayer = new VectorLayer({
-//     source: vectorSource,
-//     style: styleFunction,
-// });
-
-
-// map.addLayer(vectorLayer);
-
-const vectorSource = new VectorSource()
-
-const vector = new VectorLayer({
+const kmlLayer = new VectorLayer({
     source: new VectorSource({
         url: 'data/boundary.kml',
         format: new KML({
             extractStyles: false,
         }),
-    }),
-    style: (feature) => {
-        //        console.log('styling feature', feature)
-
-        return new Style({
-            stroke: new Stroke({
-                color: 'red',
-                width: 2,
-            })
-        })
-    }
+    })
 })
 
-map.addLayer(vector);
+map.addLayer(kmlLayer);
+
+
+const styleFunction = function(feature: Feature, resolution: number): Style | StyleLike | void {
+    if (resolution < 25) { return styles.Point }
+
+
+};
+
+
+const cotVectorSource = new VectorSource({
+    features: [],
+});
+
+const cotVectorLayer = new VectorLayer({
+    source: cotVectorSource,
+    // @ts-ignore
+    style: styleFunction,
+});
+map.addLayer(cotVectorLayer)
+
+const entities: { [uid: string]: types.COT } = {}
+
+const socket = io();
+//@ts-ignore
+socket.on('msg', (data) => { console.log('msg', data) })
+
+socket.on('SET', (entity: types.COT) => {
+    console.log("SET", entity)
+    entities[entity.uid] = entity
+
+    cotVectorSource.addFeature(
+        new Feature({
+            geometry: new Point(fromLonLat([entity.point.lon, entity.point.lat])),
+        })
+    )
+})
+
+socket.on('DEL', (uid: string) => {
+    console.log("DEL", uid)
+    delete entities[uid]
+})
+
+
+// const addEvent = (data: any) => {
+//     console.log('event', data)
+//     const feature = new GeoJSON().readFeature(data)
+//     console.log("FEATURE", feature)
+//     vectorSource.addFeature(feature)
+// }

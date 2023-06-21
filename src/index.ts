@@ -1,9 +1,9 @@
 import * as path from 'path'
-import { keys, filter, map, identity } from 'lodash'
+import { keys, filter, map, identity, mapValues, flow } from 'lodash'
 import { ArgumentParser } from 'argparse'
 
 // @ts-ignore
-import { appCore } from 'lsh-foundation'
+import { appCore, utils } from 'lsh-foundation'
 
 import * as types from './types'
 import * as systems from './subsystems'
@@ -73,8 +73,8 @@ export const init = async () => {
 
     initializingSystems[subsystem.name] = initializing
     return initializing
-
   }
+
 
   const runSystems =
     argSystems && argSystems.length
@@ -97,6 +97,17 @@ export const init = async () => {
     //@ts-ignore
     initSubsystem(systems[systemName])
   }))
+
+
+  await utils.promise.propsResolve(
+    mapValues(
+      await utils.promise.propsResolve(initializingSystems),
+      (subSystem: types.RunningSubSystem) =>
+        subSystem.start ? subSystem.start() : undefined)
+  )
+
+
+  logger.info('all systems started')
 }
 
 init()

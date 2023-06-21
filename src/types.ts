@@ -1,6 +1,6 @@
 import { configSystem, logger } from 'lsh-foundation'
-import * as systems from './subsystems'
 
+export type Logger = logger.Logger
 
 export type AppConfig = configSystem.AppConfig & {
     apiKey: string
@@ -30,7 +30,7 @@ export type COT = {
 export type InitSubsystem<RUNNING extends RunningSubSystem> = (subSystem: SubSystem<any, RUNNING>) => Promise<RUNNING>
 
 export type SubSystemInitArgs<CONFIG> = {
-    logger: logger.Logger,
+    logger: Logger,
     config: CONFIG,
     env: AppEnv,
     initSubsystem: InitSubsystem<any>
@@ -42,11 +42,12 @@ export type SubSystem<CONFIG, RUNNING extends RunningSubSystem> = {
 }
 
 export interface RunningSubSystem {
+    start?: () => Promise<any>
     stop: () => Promise<any>
 }
 
 export type AppEnv = {
-    logger: logger.Logger,
+    logger: Logger,
     env: configSystem.Env,
     rootDir: string,
 }

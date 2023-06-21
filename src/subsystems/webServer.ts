@@ -3,11 +3,8 @@ import express from "express";
 import { createServer, Server } from "http";
 import { configSystem } from 'lsh-foundation'
 import createError from 'http-errors'
-import sio from 'socket.io';
 
-import { cotPipeline } from './cotPipeline'
-
-import { SubSystem, RunningSubSystem } from '../types';
+import { SubSystem, RunningSubSystem, Logger } from '../types';
 
 export type Config = {
     port: number
@@ -17,9 +14,14 @@ export type Config = {
 }
 
 export class WebServer implements RunningSubSystem {
-    constructor(public readonly http: Server, public readonly io: sio.Server) { }
+    constructor(public readonly config: Config, public readonly logger: Logger, public readonly http: Server) { }
+    start = async () => {
+        this.http.listen(this.config.port)
+        this.logger.info("http listening at " + this.config.port)
+
+    }
+
     stop = async () => {
-        this.io.close()
         this.http.close()
     }
 }
@@ -63,21 +65,6 @@ export const webServer: SubSystem<Config, WebServer> = {
             res.send('Hello World!')
         })
 
-
-        const pipeline = await initSubsystem(cotPipeline)
-
-
-        const io = new sio.Server(server);
-
-        io.on('connection', (socket) => {
-            logger.info('socket connected');
-            socket.emit('msg', 'hi socket');
-            socket.on('close', () => {
-                logger.info('socket closed');
-            });
-        });
-
-        server.listen(config.port)
-        return new WebServer(server, io)
+        return new WebServer(config, logger, server)
     }
 }
