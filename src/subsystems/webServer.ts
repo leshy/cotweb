@@ -28,7 +28,7 @@ export class WebServer implements RunningSubSystem {
 
 export const webServer: SubSystem<Config, WebServer> = {
     name: 'webServer',
-    init: async ({ logger, config, env, initSubsystem }) => {
+    init: async ({ logger, config, env }) => {
         const app = express();
         const server = createServer(app);
 
