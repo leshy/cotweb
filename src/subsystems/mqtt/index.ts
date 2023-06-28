@@ -88,13 +88,11 @@ export const mqtt: SubSystem<Config, MQTT> = {
     name: 'mqtt',
     init: async ({ logger, config, initSubsystem }) => {
         if (config.server && config.server.enabled) {
-
             if (config.server.ws && config.server.ws.enabled) {
                 const server = await initSubsystem(webServer)
                 return new MqttServer(logger, config.server, server);
             }
             return new MqttServer(logger, config.server);
-
         }
 
         if (config.client && config.client.enabled) {

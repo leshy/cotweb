@@ -44,6 +44,9 @@ export const init = async () => {
         webServer: {
           enabled: true,
         },
+        mqttCot: {
+          enabled: true
+        },
         mqtt: {
           enabled: true,
           server: {
@@ -106,14 +109,12 @@ export const init = async () => {
     initSubsystem(systems[systemName])
   }))
 
-
   await utils.promise.propsResolve(
     mapValues(
       await utils.promise.propsResolve(initializingSystems),
       (subSystem: types.RunningSubSystem) =>
         subSystem.start ? subSystem.start() : undefined)
   )
-
 
   logger.info('all systems started')
 }
