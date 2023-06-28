@@ -1,7 +1,7 @@
-import { SubSystem, RunningSubSystem, COT, Logger } from '../types';
+import { SubSystem, RunningSubSystem, COT, Logger } from '../../types';
 import { EventEmitter } from "events";
 
-export type Config = {}
+export type Config = { port?: number }
 
 export class CotPipeline extends EventEmitter implements RunningSubSystem {
     entities: Map<string, COT> = new Map()

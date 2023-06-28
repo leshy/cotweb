@@ -43,6 +43,14 @@ export const init = async () => {
       system: {
         webServer: {
           enabled: true,
+        },
+        mqtt: {
+          enabled: true,
+          server: {
+            enabled: true,
+            tcp: { enabled: true },
+            ws: { enabled: true }
+          }
         }
       }
     }

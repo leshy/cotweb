@@ -54,6 +54,9 @@ var satLayer = new TileLayer({
     })
 });
 
+map.addLayer(satLayer)
+
+
 const mapBoxVectorLayer = new VectorTileLayer({
     declutter: true,
     //    projection: olProj.get('EPSG:4326'),
@@ -72,7 +75,8 @@ const mapBoxVectorLayer = new VectorTileLayer({
 
 applyStyle(mapBoxVectorLayer, 'mapbox://styles/mapbox/dark-v9', { accessToken: key });
 //applyStyle(vectorLayer, 'mapbox://styles/lshy33/cliyl8l1h002701pe223sg29u', { accessToken: key });
-map.addLayer(mapBoxVectorLayer)
+//map.addLayer(mapBoxVectorLayer)
+//map.addLayer(mapBoxVectorLayer)
 
 //const image = new CircleStyle({
 //    radius: 5,

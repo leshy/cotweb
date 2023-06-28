@@ -4,20 +4,30 @@ import * as ws from 'websocket-stream'
 
 import { RunningSubSystem, SubSystem, Logger } from '../../types';
 import { webServer, WebServer } from '../webServer';
+import TcpServer from 'net'
 
-export type ConfigExternal = {
+
+export type ConfigClient = {
+    enabled: boolean
     host: string
     port: number
 }
 
-export type ConfigEmbedded = {
-    TCPport?: number
+export type ConfigServer = {
+    enabled: boolean
+    ws: {
+        enabled: boolean
+    },
+    tcp: {
+        enabled: boolean
+        port?: number
+    }
 }
 
 export type Config = {
     enabled: boolean
-    external?: ConfigExternal
-    embedded?: ConfigEmbedded
+    client?: ConfigClient
+    server?: ConfigServer
 }
 
 export type SimpleCB = () => void;
@@ -32,10 +42,25 @@ export interface MQTT extends RunningSubSystem {
 
 export class MqttServer implements MQTT {
     public readonly aedes: Aedes
-    constructor(private readonly logger: Logger, private readonly config: ConfigEmbedded, server: WebServer) {
+    public readonly http?: WebServer['http']
+    public readonly tcp?: TcpServer.Server
+
+    constructor(private readonly logger: Logger, private readonly config: ConfigServer, webServer?: WebServer) {
+
         this.aedes = new Aedes()
-        // @ts-ignore
-        ws.createServer({ server: server.http }, this.aedes.handle)
+
+        if (config.ws && config.ws.enabled && webServer) {
+            this.http = webServer.http
+            // @ts-ignore
+            ws.createServer({ server: webServer.http }, this.aedes.handle)
+            logger.info(`MQTT WS server listening on port ${webServer.config.port} attached to web server`)
+        }
+
+        if (config.tcp && config.tcp.enabled) {
+            this.tcp = TcpServer.createServer(this.aedes.handle)
+            this.tcp.listen(config.tcp.port || 1883)
+            logger.info(`MQTT TCP server listening on port ${config.tcp.port || 1883}`)
+        }
     }
 
     publish = (packet: IPublishPacket) =>
@@ -52,7 +77,7 @@ export class MqttServer implements MQTT {
 }
 
 export class MqttClient implements MQTT {
-    constructor(private readonly logger: Logger, private readonly config: ConfigExternal) { }
+    constructor(private readonly logger: Logger, private readonly config: ConfigClient) { }
     publish(packet: IPublishPacket) { return undefined }
     async subscribe(topic: string, deliverFunc: DeliverFunc) { return undefined }
     async unsubscribe(topic: string, deliverfunc: DeliverFunc) { return undefined }
@@ -62,13 +87,18 @@ export class MqttClient implements MQTT {
 export const mqtt: SubSystem<Config, MQTT> = {
     name: 'mqtt',
     init: async ({ logger, config, initSubsystem }) => {
-        if (config.embedded) {
-            const server = await initSubsystem(webServer)
-            return new MqttServer(logger, config.embedded, server);
+        if (config.server && config.server.enabled) {
+
+            if (config.server.ws && config.server.ws.enabled) {
+                const server = await initSubsystem(webServer)
+                return new MqttServer(logger, config.server, server);
+            }
+            return new MqttServer(logger, config.server);
+
         }
 
-        if (config.external) {
-            return new MqttClient(logger, config.external);
+        if (config.client && config.client.enabled) {
+            return new MqttClient(logger, config.client);
         }
 
         throw new Error("No MQTT config provided")
