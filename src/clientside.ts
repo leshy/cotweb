@@ -5,7 +5,7 @@ import XYZ from 'ol/source/XYZ.js';
 // import OSM from 'ol/source/OSM';
 import { OSM, Vector as VectorSource } from 'ol/source.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
-import { Circle as CircleStyle, Fill, Stroke, Icon, Style } from 'ol/style.js';
+import { Circle as CircleStyle, Fill, Stroke, Icon, Text, Style } from 'ol/style.js';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 // import Feature from 'ol/Feature.js';
 import KML from 'ol/format/KML.js';
@@ -16,6 +16,7 @@ import VectorTileSource from 'ol/source/VectorTile.js';
 import MVT from 'ol/format/MVT.js';
 
 import Feature from 'ol/Feature.js';
+import { FeatureLike } from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
 import { fromLonLat } from 'ol/proj.js';
 
@@ -39,15 +40,16 @@ export type Config = {
 // @ts-ignore
 const key = (window.config as Config).mapBoxKey
 
+const view = new View({
+    //@ts-ignore
+    //        projection: olProj.get('EPSG:4326'),
+    center: [15.9, 45.7],
+    zoom: 3
+})
+
 const map = new Map({
     target: 'map',
-
-    view: new View({
-        //@ts-ignore
-        //        projection: olProj.get('EPSG:4326'),
-        center: [15.9, 45.7],
-        zoom: 3
-    })
+    view
 })
 
 const osmLayer = new TileLayer({
@@ -58,7 +60,7 @@ const osmLayer = new TileLayer({
 var satLayer = new TileLayer({
     source: new XYZ({
         // @ts-ignore
-        url: 'https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v10/tiles/{z}/{x}/{y}?access_token=' + key,
+        url: 'https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=' + key,
         tileSize: 512
     })
 });
@@ -84,7 +86,7 @@ const mapBoxVectorLayer = new VectorTileLayer({
 
 applyStyle(mapBoxVectorLayer, 'mapbox://styles/mapbox/dark-v9', { accessToken: key });
 
-map.addLayer(mapBoxVectorLayer)
+map.addLayer(satLayer)
 
 
 //applyStyle(vectorLayer, 'mapbox://styles/lshy33/cliyl8l1h002701pe223sg29u', { accessToken: key });
@@ -96,16 +98,6 @@ map.addLayer(mapBoxVectorLayer)
 //    stroke: new Stroke({ color: 'red', width: 1 }),
 //});
 
-
-const styles = {
-    'Point': new Style({
-        image: new Icon({
-            //color: '#8959A8',
-            crossOrigin: 'anonymous',
-            src: 'icons/control_point.png',
-        }),
-    })
-}
 
 const kmlLayer = new VectorLayer({
     source: new VectorSource({
@@ -119,25 +111,45 @@ const kmlLayer = new VectorLayer({
 map.addLayer(kmlLayer);
 
 
-const styleFunction = function(feature: Feature, resolution: number): Style | StyleLike | void {
+function cotStyleFunction(feature: Feature, resolution: number): Style | StyleLike | void {
     if (resolution < 25) { return styles.Point }
-};
+}
+
+
+function flyTo(location: any, done: (complete: any) => any) {
+    const duration = 2000;
+    const zoom: number = view.getZoom() as number;
+    let parts = 2;
+    let called = false;
+    function callback(complete: any) {
+        --parts;
+        if (called) {
+            return;
+        }
+        if (parts === 0 || !complete) {
+            called = true;
+            done(complete);
+        }
+    }
+    view.animate(
+        {
+            center: location,
+            duration: duration,
+        },
+        callback
+    );
+    view.animate(
+        {
+            zoom: 19,
+            duration: duration
+        },
+        callback
+    );
+}
 
 const cotVectorSource = new VectorSource({
     features: [],
 });
-
-const cotVectorLayer = new VectorLayer({
-    source: cotVectorSource,
-    // @ts-ignore
-    style: styleFunction,
-});
-map.addLayer(cotVectorLayer)
-
-const entities: { [uid: string]: types.COT } = {}
-
-// @ts-ignore
-window.entities = entities
 
 // const socket = io();
 // //@ts-ignore
@@ -169,11 +181,54 @@ window.entities = entities
 
 // or import mqtt_client from 'u8-mqtt'
 
+
+const styles = {
+    point: (name: string) => new Style({
+        image: new Icon({
+            crossOrigin: 'anonymous',
+            src: 'icons/control_point.png',
+        }),
+        text: new Text({
+            text: name,
+            font: '20px monospace',
+            padding: [2, 5, 2, 5],
+            textAlign: 'left',
+            fill: new Fill({
+                color: 'white',
+            }),
+            backgroundFill: new Fill({
+                color: [0, 0, 0, 0.75],
+            }),
+            offsetX: 20,
+            offsetY: 25
+        }),
+    })
+}
+
+
+const styleFunction = function(feature: Feature, resolution: number): Style | StyleLike | void {
+    console.log('feature', feature)
+    if (resolution < 25) { return styles.point(feature.get('name')) }
+};
+
+const cotVectorLayer = new VectorLayer({
+    source: cotVectorSource,
+    // @ts-ignore
+    style: styleFunction,
+});
+map.addLayer(cotVectorLayer)
+
+const entities: { [uid: string]: types.COT } = {}
+
+// @ts-ignore
+window.entities = entities
+
 function FeatureFromCOT(cot: COT): Feature {
     return new Feature({
         geometry: new Point(fromLonLat([cot.point.lon, cot.point.lat])),
+        name: cot.uid,
+        cot: cot
     })
-
 }
 
 async function comms() {
@@ -193,6 +248,8 @@ async function comms() {
             if (entities[cot.uid]) {
                 // @ts-ignore
                 cotVectorSource.removeFeature(entities[cot.uid].feature)
+            } else {
+                flyTo(fromLonLat([cot.point.lon, cot.point.lat]), () => { })
             }
 
             const feature = FeatureFromCOT(cot)
@@ -212,3 +269,36 @@ async function comms() {
 
 
 comms().then(() => console.log("comms initialized"))
+
+
+
+const selectStyle = new Style({
+    fill: new Fill({
+        color: '#ff0000',
+    }),
+    stroke: new Stroke({
+        color: 'rgba(255, 0, 0, 0.7)',
+        width: 2,
+    }),
+});
+
+let selected: FeatureLike | null = null
+map.on('pointermove', function(e) {
+    if (selected !== null) {
+        // @ts-ignore
+        selected.setStyle(undefined);
+        selected = null;
+    }
+
+    map.forEachFeatureAtPixel(e.pixel, function(f) {
+        console.log("feature", f)
+        selected = f;
+        //        selectStyle.getFill().setColor("#ff0000")
+        //        @ts-ignore
+        f.setStyle(selectStyle);
+        return true;
+    }, {
+        layerFilter: (l) => l == cotVectorLayer
+    });
+
+})
