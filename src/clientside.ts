@@ -1,23 +1,26 @@
 //import { io } from 'socket.io-client'
-import { reduce, keys, head, get } from 'lodash'
+import { reduce, keys, head, get, times } from 'lodash'
 
 import Stamen from 'ol/source/Stamen.js';
 import { Map, View } from 'ol';
 import XYZ from 'ol/source/XYZ.js';
 // import OSM from 'ol/source/OSM';
 import { OSM, Vector as VectorSource } from 'ol/source.js';
-import { Circle as CircleStyle, Fill, Stroke, Icon, Text, Style } from 'ol/style.js';
+import { Circle as CircleStyle, Fill, Stroke, Icon, Text, Style, RegularShape } from 'ol/style.js';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 // import Feature from 'ol/Feature.js';
 import KML from 'ol/format/KML.js';
 import { applyStyle } from 'ol-mapbox-style';
-
+import Polygon from 'ol/geom/Polygon.js';
 import VectorTileLayer from 'ol/layer/VectorTile.js';
 import VectorTileSource from 'ol/source/VectorTile.js';
 import MVT from 'ol/format/MVT.js';
 
 import Feature from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
+import GeometryCollection from 'ol/geom/GeometryCollection';
+
+import LineString from 'ol/geom/LineString.js';
 import { fromLonLat } from 'ol/proj.js';
 
 import * as serversideTypes from './types'
@@ -92,7 +95,7 @@ applyStyle(mapBoxVectorLayer, 'mapbox://styles/mapbox/dark-v9', { accessToken: k
 
 const stamenTonerLayer = new TileLayer({
     source: new Stamen({
-        layer: 'toner',
+        layer: 'toner-background'
     }),
 });
 
@@ -127,7 +130,7 @@ function refocus() {
 
     const ekeys = keys(entities)
     view.cancelAnimations()
-    console.log(ekeys)
+
     if (ekeys.length == 1) {
         const cot = entities[head(ekeys) as string] as COT
         view.animate({ zoom: config.soloZoom, center: fromLonLat([cot.point.lon, cot.point.lat]), duration: config.duration })
@@ -162,7 +165,8 @@ const cotVectorSource = new VectorSource({
 });
 
 const styles = {
-    point: (name: string, iconName: string) => new Style({
+
+    cot: (name: string, iconName: string) => new Style({
         image: new Icon({
             crossOrigin: 'anonymous',
             src: 'icons/' + iconName + '.png',
@@ -181,37 +185,64 @@ const styles = {
             offsetX: 20,
             offsetY: 25
         }),
+        stroke: new Stroke({
+            color: [50, 50, 100, 0.75],
+            width: 2,
+        }),
+        fill: new Fill({
+            color: [50, 50, 100, 0.5],
+        })
+    }),
+
+    default: new Style({
+        stroke: new Stroke({
+            color: [50, 50, 100, 0.75],
+            width: 2,
+        }),
+        fill: new Fill({
+            color: [50, 50, 100, 0.125],
+        })
     })
+
 }
 
-
-function iconFromCOT(cot: COT): string {
-    if (cot.atype == cotEntity['sensor point']) {
-        return 'sensor_location'
-    } else if (cot.atype == cotEntity['Gnd Combat unit']) {
-        return 'control_point'
-    } else {
-        return 'default'
-    }
-}
 
 function nameFromCot(cot: COT): string {
     return get(cot, 'detail.contact.callsign', cot.uid)
 }
 
+function styleFromCot(cot: COT): Style {
+    function iconFromCOT(cot: COT): string {
+        if (cot.atype == cotEntity['sensor point']) {
+            return 'sensor_location'
+        } else if (cot.atype == cotEntity['Gnd Combat unit']) {
+            return 'control_point'
+        } else {
+            return 'default'
+        }
+    }
+
+    return styles.cot(nameFromCot(cot), iconFromCOT(cot))
+}
+
 const styleFunction = function(feature: Feature, resolution: number): Style | StyleLike | void {
     if (resolution < 25) {
         const cot = feature.get('cot') as COT
-        // @ts-ignore
-        return styles.point(nameFromCot(cot), iconFromCOT(cot))
+        if (cot) {
+            // @ts-ignore
+            return styleFromCot(cot)
+        } else {
+            return styles.default
+        }
     }
-};
+}
 
 const cotVectorLayer = new VectorLayer({
     source: cotVectorSource,
     // @ts-ignore
     style: styleFunction,
 });
+
 map.addLayer(cotVectorLayer)
 
 const entities: { [uid: string]: types.COT } = {}
@@ -219,12 +250,66 @@ const entities: { [uid: string]: types.COT } = {}
 // @ts-ignore
 window.entities = entities
 
-function FeatureFromCOT(cot: COT): Feature {
-    return new Feature({
-        geometry: new Point(fromLonLat([cot.point.lon, cot.point.lat])),
-        name: cot.uid,
-        cot: cot
-    })
+// gpt4 wrote this, I have no idea what it does and it's a bit wrong (wrong scale on lng dimension) but nvm for now
+function movePoint([lat, lng]: [number, number], distance: number, bearing: number): [number, number] {
+    const toRadians = (degrees: number) => degrees * (Math.PI / 180);
+    const toDegrees = (radians: number) => radians * (180 / Math.PI);
+
+    const R = 6371e3; // earth radius in meters
+    const bearingRad = toRadians(bearing);
+    const latRad = toRadians(lat);
+    const delta = distance / R; // angular distance in radians
+
+    const newLatRad = Math.asin(Math.sin(latRad) * Math.cos(delta) +
+        Math.cos(latRad) * Math.sin(delta) * Math.cos(bearingRad));
+    let newLngRad = Math.atan2(Math.sin(bearingRad) * Math.sin(delta) * Math.cos(latRad),
+        Math.cos(delta) - Math.sin(latRad) * Math.sin(newLatRad));
+
+    newLngRad = ((lng + toDegrees(newLngRad) + 180) % 360) - 180; // normalise to -180..+180°
+    return [toDegrees(newLatRad), newLngRad]
+}
+
+
+function FeatureFromCOT(cot: COT): Array<Feature> {
+    if (cot.atype == cotEntity['sensor point']) {
+
+        //@ts-ignore
+        const coneAngle: number = - cot.detail.sensor.azimuth + 90
+        //@ts-ignore
+        const fov: number = cot.detail.sensor.fov
+        //@ts-ignore
+        const range: number = cot.detail.sensor.range * 1.45
+
+        const resolution = 8
+
+        return [
+
+            new Feature({
+                geometry: new Point(fromLonLat([cot.point.lon, cot.point.lat])),
+                name: cot.uid,
+                cot: cot
+            }),
+
+            new Feature({
+                geometry: new Polygon([[
+                    fromLonLat([cot.point.lon, cot.point.lat]),
+
+                    ...(times(resolution, (i: number) => {
+                        return fromLonLat(movePoint([cot.point.lon, cot.point.lat], range,
+                            coneAngle - fov / 2 + ((fov / (resolution - 1)) * i)))
+                    }
+                    )),
+                    fromLonLat([cot.point.lon, cot.point.lat])
+                ]]),
+            })
+        ]
+    } else {
+        return [new Feature({
+            geometry: new Point(fromLonLat([cot.point.lon, cot.point.lat])),
+            name: cot.uid,
+            cot: cot
+        })]
+    }
 }
 
 async function comms() {
@@ -246,10 +331,10 @@ async function comms() {
                 cotVectorSource.removeFeature(entities[cot.uid].feature)
             }
 
-            const feature = FeatureFromCOT(cot)
-            cot.feature = feature
+            const features = FeatureFromCOT(cot)
+            cot.feature = head(features)
             entities[cot.uid] = cot
-            cotVectorSource.addFeature(feature)
+            features.forEach((feature) => cotVectorSource.addFeature(feature))
             refocus()
         })
 
@@ -261,7 +346,6 @@ async function comms() {
         })
 
 }
-
 
 comms().then(() => console.log("comms initialized"))
 
