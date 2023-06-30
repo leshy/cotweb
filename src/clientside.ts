@@ -100,16 +100,16 @@ map.addLayer(satLayer)
 //});
 
 
-const kmlLayer = new VectorLayer({
-    source: new VectorSource({
-        url: 'data/boundary.kml',
-        format: new KML({
-            extractStyles: false,
-        }),
-    })
-})
+// const kmlLayer = new VectorLayer({
+//     source: new VectorSource({
+//         url: 'data/boundary.kml',
+//         format: new KML({
+//             extractStyles: false,
+//         }),
+//     })
+// })
 
-map.addLayer(kmlLayer);
+// map.addLayer(kmlLayer);
 
 function refocus() {
     const ekeys = keys(entities)
@@ -139,7 +139,7 @@ function refocus() {
             ...fromLonLat([square.maxLon, square.maxLat])
         ], {
             duration: 2000,
-            padding: [400, 400, 400, 400]
+            padding: [200, 200, 200, 200]
         })
     }
 }
