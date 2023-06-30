@@ -1,3 +1,4 @@
+import { cotEntity } from './cotParser/cotEntityEnum'
 import { configSystem, logger } from 'lsh-foundation'
 
 export type Logger = logger.Logger
@@ -7,10 +8,10 @@ export type AppConfig = configSystem.AppConfig & {
     system: { [name: string]: { enabled: boolean } }
 }
 
-
 export type Connection<EVENT> = AsyncGenerator<EVENT>
 
 export type COT = {
+    atype: cotEntity
     version: string
     uid: string
     type: string
@@ -24,6 +25,11 @@ export type COT = {
         hae: number
         ce: number
         le: number
+    }
+    detail: {
+        contact?: {
+            callsign?: string
+        }
     }
 }
 

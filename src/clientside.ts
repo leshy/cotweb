@@ -1,11 +1,11 @@
 //import { io } from 'socket.io-client'
+import { reduce, keys, head, get } from 'lodash'
 
-import { reduce, keys, head } from 'lodash'
+import Stamen from 'ol/source/Stamen.js';
 import { Map, View } from 'ol';
 import XYZ from 'ol/source/XYZ.js';
 // import OSM from 'ol/source/OSM';
 import { OSM, Vector as VectorSource } from 'ol/source.js';
-import GeoJSON from 'ol/format/GeoJSON.js';
 import { Circle as CircleStyle, Fill, Stroke, Icon, Text, Style } from 'ol/style.js';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
 // import Feature from 'ol/Feature.js';
@@ -17,11 +17,14 @@ import VectorTileSource from 'ol/source/VectorTile.js';
 import MVT from 'ol/format/MVT.js';
 
 import Feature from 'ol/Feature.js';
-import { FeatureLike } from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
 import { fromLonLat } from 'ol/proj.js';
 
 import * as serversideTypes from './types'
+
+import { cotEntity } from "./cotParser/cotEntityEnum"
+// @ts-ignore
+window.cotEntity = cotEntity
 
 type COT = serversideTypes.COT & {
     feature?: Feature
@@ -43,7 +46,6 @@ const key = (window.config as Config).mapBoxKey
 
 const view = new View({
     //@ts-ignore
-    //        projection: olProj.get('EPSG:4326'),
     center: [15.9, 45.7],
     zoom: 3
 })
@@ -87,8 +89,14 @@ const mapBoxVectorLayer = new VectorTileLayer({
 
 applyStyle(mapBoxVectorLayer, 'mapbox://styles/mapbox/dark-v9', { accessToken: key });
 
-map.addLayer(satLayer)
 
+const stamenTonerLayer = new TileLayer({
+    source: new Stamen({
+        layer: 'toner',
+    }),
+});
+
+map.addLayer(stamenTonerLayer)
 
 //applyStyle(vectorLayer, 'mapbox://styles/lshy33/cliyl8l1h002701pe223sg29u', { accessToken: key });
 //map.addLayer(mapBoxVectorLayer)
@@ -99,25 +107,30 @@ map.addLayer(satLayer)
 //    stroke: new Stroke({ color: 'red', width: 1 }),
 //});
 
+const kmlLayer = new VectorLayer({
+    source: new VectorSource({
+        url: 'data/boundary.kml',
+        format: new KML({
+            extractStyles: false,
+        }),
+    })
+})
 
-// const kmlLayer = new VectorLayer({
-//     source: new VectorSource({
-//         url: 'data/boundary.kml',
-//         format: new KML({
-//             extractStyles: false,
-//         }),
-//     })
-// })
-
-// map.addLayer(kmlLayer);
+map.addLayer(kmlLayer);
 
 function refocus() {
+    const config = {
+        padding: 200,
+        duration: 2000,
+        soloZoom: 19
+    }
+
     const ekeys = keys(entities)
     view.cancelAnimations()
     console.log(ekeys)
     if (ekeys.length == 1) {
         const cot = entities[head(ekeys) as string] as COT
-        view.animate({ zoom: 19, center: fromLonLat([cot.point.lon, cot.point.lat]), duration: 2000 })
+        view.animate({ zoom: config.soloZoom, center: fromLonLat([cot.point.lon, cot.point.lat]), duration: config.duration })
     } else {
         const square = reduce(
             entities,
@@ -138,83 +151,21 @@ function refocus() {
             ...fromLonLat([square.minLon, square.minLat]),
             ...fromLonLat([square.maxLon, square.maxLat])
         ], {
-            duration: 2000,
-            padding: [200, 200, 200, 200]
+            duration: config.duration,
+            padding: Array.from({ length: 4 }, () => config.padding)
         })
     }
-}
-
-function flyTo(location: any, done: (complete: any) => any) {
-    const duration = 2000;
-    const zoom: number = view.getZoom() as number;
-    let parts = 2;
-    let called = false;
-    function callback(complete: any) {
-        --parts;
-        if (called) {
-            return;
-        }
-        if (parts === 0 || !complete) {
-            called = true;
-            done(complete);
-        }
-    }
-    view.animate(
-        {
-            center: location,
-            duration: duration,
-        },
-        callback
-    );
-    view.animate(
-        {
-            zoom: 19,
-            duration: duration
-        },
-        callback
-    );
 }
 
 const cotVectorSource = new VectorSource({
     features: [],
 });
 
-// const socket = io();
-// //@ts-ignore
-// socket.on('msg', (data) => { console.log('msg', data) })
-
-// socket.on('SET', (entity: types.COT) => {
-//     console.log("SET", entity)
-//     entities[entity.uid] = entity
-
-//     cotVectorSource.addFeature(
-//         new Feature({
-//             geometry: new Point(fromLonLat([entity.point.lon, entity.point.lat])),
-//         })
-//     )
-// })
-
-// socket.on('DEL', (uid: string) => {
-//     console.log("DEL", uid)
-//     delete entities[uid]
-// })
-
-
-// const addEvent = (data: any) => {
-//     console.log('event', data)
-//     const feature = new GeoJSON().readFeature(data)
-//     console.log("FEATURE", feature)
-//     vectorSource.addFeature(feature)
-// }
-
-// or import mqtt_client from 'u8-mqtt'
-
-
 const styles = {
-    point: (name: string) => new Style({
+    point: (name: string, iconName: string) => new Style({
         image: new Icon({
             crossOrigin: 'anonymous',
-            src: 'icons/control_point.png',
+            src: 'icons/' + iconName + '.png',
         }),
         text: new Text({
             text: name,
@@ -234,8 +185,26 @@ const styles = {
 }
 
 
+function iconFromCOT(cot: COT): string {
+    if (cot.atype == cotEntity['sensor point']) {
+        return 'sensor_location'
+    } else if (cot.atype == cotEntity['Gnd Combat unit']) {
+        return 'control_point'
+    } else {
+        return 'default'
+    }
+}
+
+function nameFromCot(cot: COT): string {
+    return get(cot, 'detail.contact.callsign', cot.uid)
+}
+
 const styleFunction = function(feature: Feature, resolution: number): Style | StyleLike | void {
-    if (resolution < 25) { return styles.point(feature.get('name')) }
+    if (resolution < 25) {
+        const cot = feature.get('cot') as COT
+        // @ts-ignore
+        return styles.point(nameFromCot(cot), iconFromCOT(cot))
+    }
 };
 
 const cotVectorLayer = new VectorLayer({
@@ -270,7 +239,7 @@ async function comms() {
         'cot/#',
         (pkt: any) => {
             const cot: COT = pkt.json()
-            console.log('COT update', cot)
+            console.log('COT update', nameFromCot(cot), cot)
 
             if (entities[cot.uid]) {
                 // @ts-ignore
