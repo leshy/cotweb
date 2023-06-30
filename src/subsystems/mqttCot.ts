@@ -2,13 +2,8 @@ import * as Mqtt from './mqtt'
 import { cotPipeline } from './cotPipeline'
 import { COT, SubSystem, RunningSubSystem, Logger } from '../types';
 
-export enum TranslatorType {
-    Standard
-}
-
 export type Config = {
     enabled: boolean
-    type?: TranslatorType
 }
 
 export class MqttTranslator implements RunningSubSystem {
