@@ -177,18 +177,17 @@ function FeatureFromCOT(cot: COT): Feature {
 }
 
 async function comms() {
-    let my_mqtt = mqtt_client()
+    let mqttConnection = mqtt_client()
         .with_websock('ws://localhost:3001')
         // or .with_tcp('tcp://test.mosquitto.org:1883')
         .with_autoreconnect()
 
-    await my_mqtt.connect()
+    await mqttConnection.connect()
 
-    my_mqtt.subscribe_topic(
+    mqttConnection.subscribe_topic(
         'cot/#',
         (pkt: any) => {
             const cot: COT = pkt.json()
-
             console.log('COT update', cot)
 
             if (entities[cot.uid]) {
@@ -202,7 +201,7 @@ async function comms() {
             cotVectorSource.addFeature(feature)
         })
 
-    await my_mqtt.json_send(
+    await mqttConnection.json_send(
         'test/live',
         {
             note: 'from README example',
