@@ -63,7 +63,6 @@ var satLayer = new TileLayer({
     })
 });
 
-map.addLayer(satLayer)
 
 
 const mapBoxVectorLayer = new VectorTileLayer({
@@ -82,7 +81,12 @@ const mapBoxVectorLayer = new VectorTileLayer({
     })
 })
 
+
 applyStyle(mapBoxVectorLayer, 'mapbox://styles/mapbox/dark-v9', { accessToken: key });
+
+map.addLayer(mapBoxVectorLayer)
+
+
 //applyStyle(vectorLayer, 'mapbox://styles/lshy33/cliyl8l1h002701pe223sg29u', { accessToken: key });
 //map.addLayer(mapBoxVectorLayer)
 //map.addLayer(mapBoxVectorLayer)
@@ -173,7 +177,6 @@ function FeatureFromCOT(cot: COT): Feature {
 }
 
 async function comms() {
-
     let my_mqtt = mqtt_client()
         .with_websock('ws://localhost:3001')
         // or .with_tcp('tcp://test.mosquitto.org:1883')
@@ -209,4 +212,4 @@ async function comms() {
 }
 
 
-comms().then(() => console.log("comms finish"))
+comms().then(() => console.log("comms initialized"))
