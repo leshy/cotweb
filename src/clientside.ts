@@ -1,4 +1,4 @@
-import { io } from 'socket.io-client'
+//import { io } from 'socket.io-client'
 
 import { Map, View } from 'ol';
 import XYZ from 'ol/source/XYZ.js';
@@ -18,6 +18,15 @@ import MVT from 'ol/format/MVT.js';
 import Feature from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
 import { fromLonLat } from 'ol/proj.js';
+
+import * as serversideTypes from './types'
+
+type COT = serversideTypes.COT & {
+    feature?: Feature
+}
+
+//@ts-ignore
+import mqtt_client from 'u8-mqtt'
 
 import * as types from './types'
 import { StyleLike } from 'ol/style/Style';
@@ -84,13 +93,12 @@ applyStyle(mapBoxVectorLayer, 'mapbox://styles/mapbox/dark-v9', { accessToken: k
 //});
 
 
-
 const styles = {
     'Point': new Style({
         image: new Icon({
-            color: '#8959A8',
+            //color: '#8959A8',
             crossOrigin: 'anonymous',
-            src: 'icons/sensor_location.png',
+            src: 'icons/control_point.png',
         }),
     })
 }
@@ -109,10 +117,7 @@ map.addLayer(kmlLayer);
 
 const styleFunction = function(feature: Feature, resolution: number): Style | StyleLike | void {
     if (resolution < 25) { return styles.Point }
-
-
 };
-
 
 const cotVectorSource = new VectorSource({
     features: [],
@@ -127,25 +132,28 @@ map.addLayer(cotVectorLayer)
 
 const entities: { [uid: string]: types.COT } = {}
 
-const socket = io();
-//@ts-ignore
-socket.on('msg', (data) => { console.log('msg', data) })
+// @ts-ignore
+window.entities = entities
 
-socket.on('SET', (entity: types.COT) => {
-    console.log("SET", entity)
-    entities[entity.uid] = entity
+// const socket = io();
+// //@ts-ignore
+// socket.on('msg', (data) => { console.log('msg', data) })
 
-    cotVectorSource.addFeature(
-        new Feature({
-            geometry: new Point(fromLonLat([entity.point.lon, entity.point.lat])),
-        })
-    )
-})
+// socket.on('SET', (entity: types.COT) => {
+//     console.log("SET", entity)
+//     entities[entity.uid] = entity
 
-socket.on('DEL', (uid: string) => {
-    console.log("DEL", uid)
-    delete entities[uid]
-})
+//     cotVectorSource.addFeature(
+//         new Feature({
+//             geometry: new Point(fromLonLat([entity.point.lon, entity.point.lat])),
+//         })
+//     )
+// })
+
+// socket.on('DEL', (uid: string) => {
+//     console.log("DEL", uid)
+//     delete entities[uid]
+// })
 
 
 // const addEvent = (data: any) => {
@@ -154,3 +162,51 @@ socket.on('DEL', (uid: string) => {
 //     console.log("FEATURE", feature)
 //     vectorSource.addFeature(feature)
 // }
+
+// or import mqtt_client from 'u8-mqtt'
+
+function FeatureFromCOT(cot: COT): Feature {
+    return new Feature({
+        geometry: new Point(fromLonLat([cot.point.lon, cot.point.lat])),
+    })
+
+}
+
+async function comms() {
+
+    let my_mqtt = mqtt_client()
+        .with_websock('ws://localhost:3001')
+        // or .with_tcp('tcp://test.mosquitto.org:1883')
+        .with_autoreconnect()
+
+    await my_mqtt.connect()
+
+    my_mqtt.subscribe_topic(
+        'cot/#',
+        (pkt: any) => {
+            const cot: COT = pkt.json()
+
+            console.log('COT update', cot)
+
+            if (entities[cot.uid]) {
+                // @ts-ignore
+                cotVectorSource.removeFeature(entities[cot.uid].feature)
+            }
+
+            const feature = FeatureFromCOT(cot)
+            cot.feature = feature
+            entities[cot.uid] = cot
+            cotVectorSource.addFeature(feature)
+        })
+
+    await my_mqtt.json_send(
+        'test/live',
+        {
+            note: 'from README example',
+            live: new Date().toISOString()
+        })
+
+}
+
+
+comms().then(() => console.log("comms finish"))

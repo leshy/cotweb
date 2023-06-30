@@ -41,9 +41,6 @@ export const init = async () => {
     defaultConfig:
     {
       system: {
-        webServer: {
-          enabled: true,
-        },
         mqttCot: {
           enabled: true
         },

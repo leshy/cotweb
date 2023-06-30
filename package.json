@@ -67,6 +67,7 @@
     "dts-cli": "^2.0.3",
     "husky": "^8.0.3",
     "parcel": "^2.9.2",
+    "punycode": "^1.4.1",
     "size-limit": "^8.2.4",
     "tslib": "^2.5.3",
     "typescript": "^5.1.3"
@@ -87,10 +88,12 @@
     "geojson": "^0.5.0",
     "lodash": "^4.17.21",
     "lsh-foundation": "^0.1.4",
+    "mqtt": "^4.3.7",
     "ol": "^7.4.0",
     "ol-mapbox-style": "^10.6.0",
     "socket.io": "^4.6.2",
     "socket.io-client": "^4.6.2",
+    "u8-mqtt": "^0.4.1",
     "websocket-stream": "^5.5.2",
     "xml-js": "^1.6.11",
     "xml-stream": "^0.4.5"
