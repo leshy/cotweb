@@ -7,4 +7,4 @@ provides pluggable parsers for COT
 by default it broadcasts messages using embedded mqtt-over-websocket server
 provides a light web server and clientside map view
 
-![SHOT](./shot.jpg)
+![SHOT](./screenshot.jpg)
