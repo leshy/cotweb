@@ -1,7 +1,10 @@
 # Cursor-on-target adapter
 
-connects to external cursor on target router, and processes and forwards messages to mqtt
+connects to external cursor-on-target router, 
 
-supports pluggable subsystems like a web map view, figate NVR adapter etc
+provides pluggable parsers for COT
 
-![SHOT](https://raw.githubusercontent.com/leshy/cotweb/master/shot.jpg)
+by default it broadcasts messages using embedded mqtt-over-websocket server
+provides a light web server and clientside map view
+
+![SHOT](./screenshot.jpg)
