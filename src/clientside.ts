@@ -1,5 +1,6 @@
 //import { io } from 'socket.io-client'
 
+import { reduce, keys, head } from 'lodash'
 import { Map, View } from 'ol';
 import XYZ from 'ol/source/XYZ.js';
 // import OSM from 'ol/source/OSM';
@@ -110,11 +111,38 @@ const kmlLayer = new VectorLayer({
 
 map.addLayer(kmlLayer);
 
+function refocus() {
+    const ekeys = keys(entities)
+    view.cancelAnimations()
+    console.log(ekeys)
+    if (ekeys.length == 1) {
+        const cot = entities[head(ekeys) as string] as COT
+        view.animate({ zoom: 19, center: fromLonLat([cot.point.lon, cot.point.lat]), duration: 2000 })
+    } else {
+        const square = reduce(
+            entities,
+            (minMaxSquare: { minLat: number, maxLat: number, minLon: number, maxLon: number }, entity: COT) => {
+                const lat = entity.point.lat
+                const lon = entity.point.lon
+                return {
+                    minLat: Math.min(minMaxSquare.minLat, lat),
+                    maxLat: Math.max(minMaxSquare.maxLat, lat),
+                    minLon: Math.min(minMaxSquare.minLon, lon),
+                    maxLon: Math.max(minMaxSquare.maxLon, lon),
+                }
+            },
+            { minLat: 90, maxLat: -90, minLon: 180, maxLon: -180 }
+        )
 
-function cotStyleFunction(feature: Feature, resolution: number): Style | StyleLike | void {
-    if (resolution < 25) { return styles.Point }
+        view.fit([
+            ...fromLonLat([square.minLon, square.minLat]),
+            ...fromLonLat([square.maxLon, square.maxLat])
+        ], {
+            duration: 2000,
+            padding: [400, 400, 400, 400]
+        })
+    }
 }
-
 
 function flyTo(location: any, done: (complete: any) => any) {
     const duration = 2000;
@@ -247,14 +275,13 @@ async function comms() {
             if (entities[cot.uid]) {
                 // @ts-ignore
                 cotVectorSource.removeFeature(entities[cot.uid].feature)
-            } else {
-                flyTo(fromLonLat([cot.point.lon, cot.point.lat]), () => { })
             }
 
             const feature = FeatureFromCOT(cot)
             cot.feature = feature
             entities[cot.uid] = cot
             cotVectorSource.addFeature(feature)
+            refocus()
         })
 
     await mqttConnection.json_send(
