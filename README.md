@@ -4,4 +4,4 @@ connects to external cursor on target router, and processes and forwards message
 
 supports pluggable subsystems like a web map view, figate NVR adapter etc
 
-![screenshot](shot.png)
+![SHOT](https://raw.githubusercontent.com/leshy/cotweb/master/shot.jpg)
