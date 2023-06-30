@@ -207,7 +207,6 @@ const styles = {
 
 
 const styleFunction = function(feature: Feature, resolution: number): Style | StyleLike | void {
-    console.log('feature', feature)
     if (resolution < 25) { return styles.point(feature.get('name')) }
 };
 
@@ -270,35 +269,32 @@ async function comms() {
 
 comms().then(() => console.log("comms initialized"))
 
+// const selectStyle = new Style({
+//     fill: new Fill({
+//         color: '#ff0000',
+//     }),
+//     stroke: new Stroke({
+//         color: 'rgba(255, 0, 0, 0.7)',
+//         width: 2,
+//     }),
+// });
+// let selected: FeatureLike | null = null
+// map.on('pointermove', function(e) {
+//     if (selected !== null) {
+//         // @ts-ignore
+//         selected.setStyle(undefined);
+//         selected = null;
+//     }
 
+//     map.forEachFeatureAtPixel(e.pixel, function(f) {
+//         console.log("feature", f)
+//         selected = f;
+//         //        selectStyle.getFill().setColor("#ff0000")
+//         //        @ts-ignore
+//         f.setStyle(selectStyle);
+//         return true;
+//     }, {
+//         layerFilter: (l) => l == cotVectorLayer
+//     });
 
-const selectStyle = new Style({
-    fill: new Fill({
-        color: '#ff0000',
-    }),
-    stroke: new Stroke({
-        color: 'rgba(255, 0, 0, 0.7)',
-        width: 2,
-    }),
-});
-
-let selected: FeatureLike | null = null
-map.on('pointermove', function(e) {
-    if (selected !== null) {
-        // @ts-ignore
-        selected.setStyle(undefined);
-        selected = null;
-    }
-
-    map.forEachFeatureAtPixel(e.pixel, function(f) {
-        console.log("feature", f)
-        selected = f;
-        //        selectStyle.getFill().setColor("#ff0000")
-        //        @ts-ignore
-        f.setStyle(selectStyle);
-        return true;
-    }, {
-        layerFilter: (l) => l == cotVectorLayer
-    });
-
-})
+// })
