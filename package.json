@@ -6,7 +6,10 @@
   "main": "dist/index.js",
   "module": "dist/cotwebsocket.esm.js",
   "typings": "dist/index.d.ts",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "analyze": "size-limit --why",
     "build": "dts build",
@@ -20,7 +23,7 @@
   },
   "targets": {
     "frontend": {
-      "source": "src/clientside.ts",
+      "source": "src/clientside.tsx",
       "distDir": "web/static/js/",
       "engines": {
         "browsers": "> 0.5%, last 2 versions, not dead"
@@ -40,6 +43,9 @@
   },
   "jest": {
     "testEnvironment": "node"
+  },
+  "peerDependencies": {
+    "react": ">=16"
   },
   "engines": {
     "node": ">=16"
@@ -63,6 +69,8 @@
     "@types/http-errors": "^2.0.1",
     "@types/lodash": "^4.14.195",
     "@types/ol": "^7.0.0",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
     "dts-cli": "^2.0.3",
     "husky": "^8.0.3",
     "parcel": "^2.9.2",
@@ -90,6 +98,8 @@
     "mqtt": "^4.3.7",
     "ol": "^7.4.0",
     "ol-mapbox-style": "^10.6.0",
+    "react": ">=16",
+    "react-dom": "^18.2.0",
     "socket.io": "^4.6.2",
     "socket.io-client": "^4.6.2",
     "u8-mqtt": "^0.4.1",

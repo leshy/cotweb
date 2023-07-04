@@ -2,7 +2,10 @@
   "extends": "@tsconfig/recommended/tsconfig.json",
   "include": ["src", "types"],
   "compilerOptions": {
+    "alwaysStrict": true,
+    "noUnusedLocals": false,
     "module": "ESNext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "jsx": "react"
   }
 }

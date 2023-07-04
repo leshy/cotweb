@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/js/clientside.css' />
+    <meta charset="utf-8" />
+    <title>CotWeb</title>
 
     <script type="text/javascript">
      window.config = <%- JSON.stringify(config) %>
     </script>
-
-    <script type="text/javascript" url="js/clientside.js"></script>
   </head>
   <body>
-    <div id="map"></div>
-    <script src="js/clientside.js" type="module"></script>
+    <div id="root"></div>
+    <script type="module" src="/js/clientside.js"></script>
   </body>
 </html>
