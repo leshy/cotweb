@@ -4,6 +4,7 @@ import { map } from 'lodash'
 import React, { useState } from 'react';
 import { COT, nameFromCot, renderTimes } from '../base'
 import JSONPretty from 'react-json-pretty';
+const theme = require('react-json-pretty/dist/adventure_time');
 
 type Callback = (uid: string) => any
 
@@ -16,7 +17,7 @@ function CotEntry({ entity, callback, isExpanded }: { entity: COT, callback: Cal
 
 function ExpandedCotEntry({ entity }: { entity: COT }) {
     return <div className="cotDetails">
-        <JSONPretty data={renderTimes(entity)} ></JSONPretty>
+        <JSONPretty data={renderTimes(entity)} theme={theme} ></JSONPretty>
     </div>
 }
 

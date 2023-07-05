@@ -231,7 +231,6 @@ function MapWrapper(props) {
     // map click handler
     // @ts-ignore
     const handleMapClick = (event) => {
-        console.log('map clicked', event)
         // get clicked coordinate using mapRef to access current React state inside OpenLayers callback
         //  https://stackoverflow.com/a/60643670
         // @ts-ignore
@@ -243,7 +242,6 @@ function MapWrapper(props) {
         // set React state
         // @ts-ignore
         setSelectedCoord(transormedCoord)
-
     }
 
     // render component

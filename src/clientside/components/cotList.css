@@ -6,12 +6,11 @@
 }
 
 .cotList {
-  background: black;
+  background: rgba(0, 0, 0, 0.9) !important;
   color: white;
   text-align: left;
   padding: 0;
   flex: 1;
-
   align-self: flex-start;
 }
 
@@ -20,14 +19,18 @@
   background: white;
 }
 
+.__json-pretty__ {
+  margin: 0 !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  padding: 0.75em;
+}
+
 .cotDetails {
   position: relative;
   left: -1px;
-  color: black;
-  background: white;
   text-align: left;
+  color: white;
   border: 1px solid black;
-  padding-left: 1em;
 }
 
 ul {
