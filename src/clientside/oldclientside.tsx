@@ -12,7 +12,6 @@ import KML from 'ol/format/KML.js';
 import { applyStyle } from 'ol-mapbox-style';
 import Polygon from 'ol/geom/Polygon.js';
 import VectorTileLayer from 'ol/layer/VectorTile.js';
-import GeoTIFF from 'ol/source/GeoTIFF.js';
 import VectorTileSource from 'ol/source/VectorTile.js';
 import MVT from 'ol/format/MVT.js';
 import Feature from 'ol/Feature.js';
@@ -21,9 +20,6 @@ import GeometryCollection from 'ol/geom/GeometryCollection';
 import LineString from 'ol/geom/LineString.js';
 import { fromLonLat } from 'ol/proj.js';
 import { StyleLike } from 'ol/style/Style';
-
-
-
 
 import * as serversideTypes from '../types'
 import { cotEntity } from "../cotParser/cotEntityEnum"

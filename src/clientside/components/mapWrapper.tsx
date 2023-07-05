@@ -10,6 +10,7 @@ import View from 'ol/View'
 import TileLayer from 'ol/layer/Tile'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import Stamen from 'ol/source/Stamen'
 import XYZ from 'ol/source/XYZ'
 import KML from 'ol/format/KML.js';
 import { transform } from 'ol/proj'
@@ -127,12 +128,12 @@ function MapWrapper(props) {
             target: mapElement.current,
             layers: [
 
-
-                new TileLayer({
-                    className: 'bw',
-                    source: new OSM()
-                })
-
+                /*
+                *                 new TileLayer({
+                *                     className: 'bw',
+                *                     source: new OSM()
+                *                 })
+                *  */
                 // Google Maps Terrain
                 /* new TileLayer({
                   source: new XYZ({
@@ -181,6 +182,13 @@ function MapWrapper(props) {
 
         })
 
+        const stamenTonerLayer = new TileLayer({
+            source: new Stamen({
+                layer: 'toner-background'
+            }),
+        });
+
+        initialMap.addLayer(stamenTonerLayer)
         initialMap.addLayer(customTiles)
         initialMap.addLayer(kmlLayer);
         initialMap.addLayer(initalFeaturesLayer)

@@ -100,6 +100,7 @@
     "ol-mapbox-style": "^10.6.0",
     "react": ">=16",
     "react-dom": "^18.2.0",
+    "react-json-pretty": "^2.2.0",
     "socket.io": "^4.6.2",
     "socket.io-client": "^4.6.2",
     "u8-mqtt": "^0.4.1",
