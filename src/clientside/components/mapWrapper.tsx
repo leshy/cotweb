@@ -63,8 +63,8 @@ function MapWrapper(props) {
                     backgroundFill: new Fill({
                         color: [0, 0, 0, 0.75],
                     }),
-                    offsetX: 20,
-                    offsetY: 25
+                    offsetX: 10 + (50 / 2),
+                    offsetY: 14
                 }),
                 stroke: new Stroke({
                     color: [50, 50, 100, 0.75],

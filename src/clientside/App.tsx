@@ -37,8 +37,11 @@ function App() {
     }, [])
 
 
+    const reticle = isExpanded ? <img id="reticleImg" key={isExpanded} src="images/reticle.svg" /> : null
+
     return <div className="App">
         <CotMap entities={entities} isExpanded={isExpanded} />
+        {reticle}
         <CotList entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} />
     </div>
 }

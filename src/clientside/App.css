@@ -36,3 +36,39 @@
 .clicked-coord-label p {
   margin: 10px;
 }
+
+#reticleImg {
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%);
+  position: absolute;
+  pointer-events: none;
+  animation: showLater 1.5s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 2s;
+}
+
+@keyframes showLater {
+  0% {
+    visibility: hidden;
+    opacity: 0;
+  }
+  66% {
+    visibility: visible;
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
