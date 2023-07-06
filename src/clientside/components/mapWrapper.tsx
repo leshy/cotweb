@@ -13,6 +13,7 @@ import VectorSource from 'ol/source/Vector'
 import Stamen from 'ol/source/Stamen'
 import XYZ from 'ol/source/XYZ'
 import KML from 'ol/format/KML.js';
+import { fromLonLat } from 'ol/proj.js';
 import { transform } from 'ol/proj'
 import { toStringXY } from 'ol/coordinate';
 
@@ -22,6 +23,8 @@ import * as types from '../../types'
 type COT = types.COT & {
     feature?: Array<Feature>
 }
+
+
 
 // @ts-ignore
 function MapWrapper(props) {
@@ -102,7 +105,7 @@ function MapWrapper(props) {
             return styles.cot(nameFromCot(cot), iconFromCOT(cot))
         }
 
-        const styleFunction = function(feature: Feature, resolution: number): Style | StyleLike | void {
+        const styleFunction = function(feature: Feature, resolution: number): Style | void {
             if (resolution < 25) {
                 const cot = feature.get('cot') as COT
                 if (cot) {
@@ -113,7 +116,6 @@ function MapWrapper(props) {
                 }
             }
         }
-
 
         // create and add vector source layer
         const initalFeaturesLayer = new VectorLayer({
@@ -214,8 +216,17 @@ function MapWrapper(props) {
 
     }, [])
 
+
     // update map if features prop changes - logic formerly put into componentDidUpdate
     useEffect(() => {
+        if (props.viewLoc) {
+            // @ts-ignore
+            const view = map.getView()
+            view.cancelAnimations()
+            view.animate({ zoom: props.viewZoom || 18, center: fromLonLat(props.viewLoc), duration: 1000 })
+        }
+
+
         if (props.features.length) { // may be null on first render
             // set features to map
             // @ts-ignore
@@ -227,10 +238,10 @@ function MapWrapper(props) {
 
             // fit map to feature extent (with 100px of padding)
             // @ts-ignore
-            map.getView().fit(featuresLayer.getSource().getExtent(), {
-                padding: [100, 100, 100, 100]
-            })
-
+            /* map.getView().fit(featuresLayer.getSource().getExtent(), {
+*     padding: [100, 100, 100, 100]
+* })
+ */
         }
 
     }, [props.features])

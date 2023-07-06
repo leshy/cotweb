@@ -26,13 +26,13 @@ function CotEntry({ entity, callback, isExpanded }: { entity: COT, callback: Cal
 }
 
 function ExpandedCotEntry({ entity }: { entity: COT }) {
-    return <div className="cotDetails">
+    return <div id="cotDetails" className="cotDetails">
         <JSONPretty data={renderTimes(entity)} theme={theme} ></JSONPretty>
     </div>
 }
 
-export function CotList({ entities }: { entities: { [uid: string]: COT } }) {
-    const [isExpanded, setExpanded] = useState<string | void>(undefined);
+export function CotList({ entities, setExpanded, isExpanded }: { entities: { [uid: string]: COT } }) {
+    //    const [isExpanded, setExpanded] = useState<string | void>(undefined);
 
     const handler = (uid: string) =>
         (uid == isExpanded) ? setExpanded(undefined) : setExpanded(uid)

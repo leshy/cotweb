@@ -79,10 +79,12 @@ function FeatureFromCOT(cot: COT): Array<Feature> {
         })]
     }
 }
-export function CotMap({ entities }: { entities: { [uid: string]: COT } }) {
+export function CotMap({ entities, isExpanded }: { entities: { [uid: string]: COT }, isExpanded: string | void }) {
     const features = flatten(map(entities, FeatureFromCOT))
-    console.log("NEW FEATURES GENERATED", features, entities)
-    return <MapWrapper features={features} />
+
+    const cot: COT | void = isExpanded ? entities[isExpanded] : undefined
+
+    return <MapWrapper features={features} viewLoc={cot ? [cot.point.lon, cot.point.lat] : undefined} />
 }
 
 export default CotMap

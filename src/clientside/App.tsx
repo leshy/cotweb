@@ -28,6 +28,7 @@ import CotList from './components/cotList'
 function App() {
     // set intial state
     const [entities, setEntities] = useState({})
+    const [isExpanded, setExpanded] = useState<string | void>(undefined);
     // initialization - retrieve GeoJSON features from Mock JSON API get features from mock
     //  GeoJson API (read from flat .json file in public directory)
     useEffect(() => {
@@ -35,12 +36,11 @@ function App() {
         comms(setEntities).then(() => console.log("comms initialized"))
     }, [])
 
-    return (
-        <div className="App">
-            <CotMap entities={entities} />
-            <CotList entities={entities} />
-        </div>
-    )
+
+    return <div className="App">
+        <CotMap entities={entities} isExpanded={isExpanded} />
+        <CotList entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} />
+    </div>
 }
 
 function nameFromCot(cot: COT): string {
