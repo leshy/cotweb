@@ -31,7 +31,7 @@ function ExpandedCotEntry({ entity }: { entity: COT }) {
     </div>
 }
 
-export function CotList({ entities, setExpanded, isExpanded }: { entities: { [uid: string]: COT } }) {
+export function CotList({ entities, setExpanded, isExpanded }: { entities: { [uid: string]: COT }, isExpanded: string | void, setExpanded: Function }) {
     //    const [isExpanded, setExpanded] = useState<string | void>(undefined);
 
     const handler = (uid: string) =>

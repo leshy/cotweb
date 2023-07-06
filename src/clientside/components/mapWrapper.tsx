@@ -249,6 +249,10 @@ function MapWrapper(props) {
     // map click handler
     // @ts-ignore
     const handleMapClick = (event) => {
+        // https://stackoverflow.com/questions/58098038/openlayers-how-do-i-identify-points-with-onclick
+        // can make cots clickable via
+
+
         // get clicked coordinate using mapRef to access current React state inside OpenLayers callback
         //  https://stackoverflow.com/a/60643670
         // @ts-ignore
@@ -264,14 +268,11 @@ function MapWrapper(props) {
 
     // render component
     // @ts-ignore
-    return (
-        <div>
-            <div ref={mapElement} className="map-container"></div>
-            <div className="clicked-coord-label">
-                <p>{(selectedCoord) ? toStringXY(selectedCoord, 5) : ''}</p>
-            </div>
+    return <div> <div ref={mapElement} className="map-container"></div>
+        <div className="clicked-coord-label">
+            <p>{(selectedCoord) ? toStringXY(selectedCoord, 5) : ''}</p>
         </div>
-    )
+    </div>
 
 }
 
