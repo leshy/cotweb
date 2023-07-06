@@ -41,6 +41,13 @@ export const init = async () => {
     defaultConfig:
     {
       system: {
+        cotConnection: {
+          enabled: true,
+          tcp: {
+            host: "localhost",
+            port: 8087
+          }
+        },
         mqttCot: {
           enabled: true
         },

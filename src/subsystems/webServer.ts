@@ -16,8 +16,8 @@ export type Config = {
 export class WebServer implements RunningSubSystem {
     constructor(public readonly config: Config, public readonly logger: Logger, public readonly http: Server) { }
     start = async () => {
-        this.http.listen(this.config.port)
-        this.logger.info("http listening at " + this.config.port)
+        this.http.listen(this.config.port || 3001)
+        this.logger.info("http listening at " + this.config.port || 3001)
 
     }
 
