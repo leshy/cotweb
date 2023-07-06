@@ -16,6 +16,8 @@ npm run buildall
 
 create a new file, `config/development.json` and add mapbox api key there, might need to create an acc at mapbox.com
 
+(config system is complex but I haven't documented it yet, this sort of depth makes sense trust me:)
+
 ```json
 {
   "system": {
