@@ -4,7 +4,17 @@ import { map } from 'lodash'
 import React, { useState } from 'react';
 import { COT, nameFromCot, renderTimes } from '../base'
 import JSONPretty from 'react-json-pretty';
-const theme = require('react-json-pretty/dist/adventure_time');
+const theme = require('react-json-pretty/themes/adventure_time.css');
+
+/* const theme = {
+*     main: 'line-height:1.3;color:#1a1a1a;overflow:auto;', // Very Dark Grey for main text
+*     error: 'line-height:1.3;color:#c0392b;overflow:auto;', // Dark Red for errors
+*     key: 'color:#2980b9;', // Dark Sky Blue for keys
+*     string: 'color:#27ae60;', // Dark Emerald Green for strings
+*     value: 'color:#8e44ad;', // Dark Amethyst Purple for values
+*     boolean: 'color:#f39c12;', // Dark Sunflower Yellow for booleans
+* }
+*  */
 
 type Callback = (uid: string) => any
 
@@ -21,7 +31,7 @@ function ExpandedCotEntry({ entity }: { entity: COT }) {
     </div>
 }
 
-export function CotList({ entities }: { entities: Array<COT> }) {
+export function CotList({ entities }: { entities: { [uid: string]: COT } }) {
     const [isExpanded, setExpanded] = useState<string | void>(undefined);
 
     const handler = (uid: string) =>
@@ -30,13 +40,11 @@ export function CotList({ entities }: { entities: Array<COT> }) {
     const listItems: Array<React.JSX.Element> = map(
         entities,
         // @ts-ignore
-        ((entity: COT) => <CotEntry entity={entity} isExpanded={isExpanded} callback={handler} />))
+        ((entity: COT) => <CotEntry key={entity.uid} entity={entity} isExpanded={isExpanded} callback={handler} />))
 
-
-    const list = <div className="cotList"><ul>{listItems}</ul></div>
 
     return <div className="container">
-        {list}
+        <div className="cotList"><ul>{listItems}</ul></div>
         {isExpanded ? <ExpandedCotEntry entity={entities[isExpanded]} /> : <div />}
     </div>
 

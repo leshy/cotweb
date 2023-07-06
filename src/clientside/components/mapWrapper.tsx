@@ -15,7 +15,6 @@ import XYZ from 'ol/source/XYZ'
 import KML from 'ol/format/KML.js';
 import { transform } from 'ol/proj'
 import { toStringXY } from 'ol/coordinate';
-import { OSM } from 'ol/source.js';
 
 import { cotEntity } from "../../cotParser/cotEntityEnum"
 import * as types from '../../types'
@@ -188,9 +187,19 @@ function MapWrapper(props) {
             }),
         });
 
-        initialMap.addLayer(stamenTonerLayer)
+
+        const satLayer = new TileLayer({
+            source: new XYZ({
+                // @ts-ignore
+                url: 'https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=' + window.config.mapBoxKey,
+                tileSize: 512
+            })
+        });
+
+
+        initialMap.addLayer(satLayer)
         initialMap.addLayer(customTiles)
-        initialMap.addLayer(kmlLayer);
+        initialMap.addLayer(kmlLayer)
         initialMap.addLayer(initalFeaturesLayer)
 
 
@@ -207,9 +216,7 @@ function MapWrapper(props) {
 
     // update map if features prop changes - logic formerly put into componentDidUpdate
     useEffect(() => {
-
         if (props.features.length) { // may be null on first render
-
             // set features to map
             // @ts-ignore
             featuresLayer.setSource(

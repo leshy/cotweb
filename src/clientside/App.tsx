@@ -1,5 +1,5 @@
 import './App.css';
-import { reduce, keys, head, get, times } from 'lodash'
+import { reduce, keys, head, get, times, clone } from 'lodash'
 import { Map, View } from 'ol';
 import { OSM } from 'ol/source.js';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
@@ -22,7 +22,7 @@ import * as types from '../types'
 import { COT } from './base'
 
 // components
-import CotMap from './components/CotMap'
+import CotMap from './components/cotMap'
 import CotList from './components/cotList'
 
 function App() {
@@ -43,7 +43,6 @@ function App() {
     )
 }
 
-
 function nameFromCot(cot: COT): string {
     return get(cot, 'detail.contact.callsign', cot.uid)
 }
@@ -62,10 +61,16 @@ async function comms(callback: (entities: { [uid: string]: COT }) => void) {
         'cot/#',
         (pkt: any) => {
             const cot: COT = pkt.json()
+
+            if (cot == null) {
+                console.log("NULL MSG", pkt)
+                return
+            }
+
             console.log('COT update', nameFromCot(cot), cot)
 
             entities[cot.uid] = cot
-            callback(entities)
+            callback(clone(entities))
 
 
             //if (entities[cot.uid]) {

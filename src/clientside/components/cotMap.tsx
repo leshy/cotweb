@@ -8,12 +8,20 @@ import Point from 'ol/geom/Point.js';
 import Polygon from 'ol/geom/Polygon.js';
 import { fromLonLat } from 'ol/proj.js';
 import { cotEntity } from "../../cotParser/cotEntityEnum"
+import * as turf from 'turf'
 
 
-// gpt4 wrote this, I have no idea what it does and it's a bit wrong (wrong scale on lng dimension) but nvm for now
+function movePoint([lat, lng]: [number, number], distance: number, bearing: number): [number, number] {
+    const point = turf.point([lng, lat]);
+    const destination = turf.destination(point, distance, bearing, 'meters');
+    return destination.geometry.coordinates.reverse() as [number, number]
+}
+
+// gpt4 wrote this, I have no idea what it does and it's a bit wrong (wrong scale on lng dimension)
+// but nvm for now
 // check this for later to fix this
 // https://stackoverflow.com/questions/68961531/how-to-get-latitude-and-longitude-after-going-a-distance-at-certain-bearing-from
-function movePoint([lat, lng]: [number, number], distance: number, bearing: number): [number, number] {
+function movePoint_old([lat, lng]: [number, number], distance: number, bearing: number): [number, number] {
     const toRadians = (degrees: number) => degrees * (Math.PI / 180);
     const toDegrees = (radians: number) => radians * (180 / Math.PI);
 
@@ -31,10 +39,8 @@ function movePoint([lat, lng]: [number, number], distance: number, bearing: numb
     return [toDegrees(newLatRad), newLngRad]
 }
 
-
 function FeatureFromCOT(cot: COT): Array<Feature> {
     if (cot.atype == cotEntity['sensor point']) {
-
         //@ts-ignore
         const coneAngle: number = - cot.detail.sensor.azimuth + 90
         //@ts-ignore
@@ -73,8 +79,9 @@ function FeatureFromCOT(cot: COT): Array<Feature> {
         })]
     }
 }
-export function CotMap({ entities }: { entities: Array<COT> }) {
+export function CotMap({ entities }: { entities: { [uid: string]: COT } }) {
     const features = flatten(map(entities, FeatureFromCOT))
+    console.log("NEW FEATURES GENERATED", features, entities)
     return <MapWrapper features={features} />
 }
 
