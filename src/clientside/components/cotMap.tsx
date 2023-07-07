@@ -89,7 +89,7 @@ function SelectorFromCOT(cot: COT): Feature {
     })
 }
 
-export function CotMap({ mapLayer, entities, isExpanded, setExpanded }: { mapLayer, setExpanded: Function, entities: { [uid: string]: COT }, isExpanded: string | void }) {
+export function CotMap({ mapLayer, entities, isExpanded, setExpanded }: { mapLayer: MapLayer, setExpanded: Function, entities: { [uid: string]: COT }, isExpanded: string | void }) {
 
     const features = flatten(map(entities, FeatureFromCOT))
     if (isExpanded) {
