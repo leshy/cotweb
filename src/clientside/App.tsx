@@ -22,12 +22,16 @@ import * as types from '../types'
 import { COT } from './base'
 
 // components
+// @ts-ignore
 import CotMap from './components/cotMap'
 import CotList from './components/cotList'
+import MapLayerSelector from './components/mapLayerSelector'
+import { MapLayer } from './types'
 
 function App() {
     // set intial state
     const [entities, setEntities] = useState({})
+    const [mapLayer, setMapLayer] = useState(MapLayer.Sat)
     const [isExpanded, setExpanded] = useState<string | void>(undefined);
     // initialization - retrieve GeoJSON features from Mock JSON API get features from mock
     //  GeoJson API (read from flat .json file in public directory)
@@ -40,8 +44,9 @@ function App() {
     const reticle = isExpanded ? <img id="reticleImg" key={isExpanded} src="images/reticle.svg" /> : null
 
     return <div className="App">
-        <CotMap entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} />
+        <CotMap entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} mapLayer={mapLayer} />
         <CotList entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} />
+        <MapLayerSelector setMapLayer={setMapLayer} mapLayer={mapLayer} />
     </div>
 }
 

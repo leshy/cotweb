@@ -10,7 +10,7 @@ import Polygon from 'ol/geom/Polygon.js';
 import { fromLonLat } from 'ol/proj.js';
 import { cotEntity } from "../../cotParser/cotEntityEnum"
 import * as turf from 'turf'
-
+import { MapLayer } from '../types'
 
 function movePoint([lat, lng]: [number, number], distance: number, bearing: number): [number, number] {
     const point = turf.point([lng, lat]);
@@ -89,12 +89,12 @@ function SelectorFromCOT(cot: COT): Feature {
     })
 }
 
-export function CotMap({ entities, isExpanded, setExpanded }: { setExpanded: Function, entities: { [uid: string]: COT }, isExpanded: string | void }) {
+export function CotMap({ mapLayer, entities, isExpanded, setExpanded }: { mapLayer, setExpanded: Function, entities: { [uid: string]: COT }, isExpanded: string | void }) {
 
     const features = flatten(map(entities, FeatureFromCOT))
     if (isExpanded) {
         const reticle = SelectorFromCOT(entities[isExpanded])
-        features.push(reticle)
+        features.unshift(reticle)
     }
 
     const cot: COT | void = isExpanded ? entities[isExpanded] : undefined
@@ -114,7 +114,7 @@ export function CotMap({ entities, isExpanded, setExpanded }: { setExpanded: Fun
         }
     }
 
-    return <MapWrapper features={features} clicked={clickedMap} viewLoc={cot ? [cot.point.lon, cot.point.lat] : undefined} />
+    return <MapWrapper mapLayer={mapLayer} features={features} clicked={clickedMap} viewLoc={cot ? [cot.point.lon, cot.point.lat] : undefined} />
 }
 
 

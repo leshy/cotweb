@@ -7,9 +7,11 @@ import { reduce, keys, head, get, times } from 'lodash'
 // openlayers
 import Map from 'ol/Map'
 import View from 'ol/View'
+import { Group } from 'ol/layer'
 import TileLayer from 'ol/layer/Tile'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import OSM from 'ol/source/OSM';
 import Stamen from 'ol/source/Stamen'
 import XYZ from 'ol/source/XYZ'
 import KML from 'ol/format/KML.js';
@@ -19,10 +21,14 @@ import { toStringXY } from 'ol/coordinate';
 
 import { cotEntity } from "../../cotParser/cotEntityEnum"
 import * as types from '../../types'
+import { MapLayer } from '../types'
 
 type COT = types.COT & {
     feature?: Array<Feature>
 }
+
+
+let layerGroups: { [key: string]: Group } = {}
 
 // @ts-ignore
 function MapWrapper(props) {
@@ -61,8 +67,8 @@ function MapWrapper(props) {
                     backgroundFill: new Fill({
                         color: [0, 0, 0, 0.75],
                     }),
-                    offsetX: 10 + (50 / 2),
-                    offsetY: 14
+                    offsetX: 20,
+                    offsetY: 25
                 }),
                 stroke: new Stroke({
                     color: [50, 50, 100, 0.75],
@@ -195,7 +201,13 @@ function MapWrapper(props) {
                 }),
             }),
             style: kmlStyle,
+        })
 
+
+
+        const osmLayer = new TileLayer({
+            className: 'bw',
+            source: new OSM()
         })
 
         const stamenTonerLayer = new TileLayer({
@@ -203,7 +215,6 @@ function MapWrapper(props) {
                 layer: 'toner-background'
             }),
         });
-
 
         const satLayer = new TileLayer({
             source: new XYZ({
@@ -214,12 +225,33 @@ function MapWrapper(props) {
         });
 
 
-        initialMap.addLayer(satLayer)
-        initialMap.addLayer(customTiles)
-        initialMap.addLayer(kmlLayer)
-        initialMap.addLayer(initalFeaturesLayer)
 
+        const standardLayers = [customTiles, kmlLayer, initalFeaturesLayer]
 
+        layerGroups[MapLayer.Street] = new Group({
+            layers: [
+                osmLayer,
+                ...standardLayers]
+        })
+        layerGroups[MapLayer.Sat] = new Group({
+            layers: [
+                satLayer,
+                ...standardLayers]
+        })
+
+        layerGroups[MapLayer.Stamen] = new Group({
+            layers: [
+                stamenTonerLayer,
+                ...standardLayers]
+        })
+
+        initialMap.setLayerGroup(layerGroups[MapLayer.Sat]);
+        /*
+        *         initialMap.addLayer(satLayer)
+        *         initialMap.addLayer(customTiles)
+        *         initialMap.addLayer(kmlLayer)
+        *         initialMap.addLayer(initalFeaturesLayer)
+        *  */
         // set map onclick handler
         initialMap.on('click', handleMapClick)
 
@@ -234,13 +266,13 @@ function MapWrapper(props) {
 
     // update map if features prop changes - logic formerly put into componentDidUpdate
     useEffect(() => {
-        if (props.viewLoc) {
-            // @ts-ignore
-            const view = map.getView()
-            view.cancelAnimations()
-            view.animate({ zoom: props.viewZoom || 18, center: fromLonLat(props.viewLoc), duration: 1000 })
-        }
+        if (props.mapLayer) {
+            if (map) {
+                // @ts-ignore
+                map.setLayerGroup(layerGroups[props.mapLayer])
+            }
 
+        }
 
         if (props.features.length) { // may be null on first render
             // set features to map
@@ -250,13 +282,16 @@ function MapWrapper(props) {
                     features: props.features // make sure features is an array
                 })
             )
+        }
 
-            // fit map to feature extent (with 100px of padding)
+        if (props.viewLoc) {
             // @ts-ignore
-            /* map.getView().fit(featuresLayer.getSource().getExtent(), {
-    *     padding: [100, 100, 100, 100]
-    * })
-    */
+            const view = map.getView()
+            setTimeout(() => {
+                view.cancelAnimations()
+                view.animate({ zoom: props.viewZoom || 17, center: fromLonLat(props.viewLoc), duration: 1000 })
+            }, 0)
+            //view.animate({ zoom: props.viewZoom || 18, center: fromLonLat(props.viewLoc), duration: 1000 })
         }
 
     }, [props.features])
