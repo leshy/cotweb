@@ -24,8 +24,6 @@ type COT = types.COT & {
     feature?: Array<Feature>
 }
 
-
-
 // @ts-ignore
 function MapWrapper(props) {
 
@@ -251,7 +249,7 @@ function MapWrapper(props) {
     const handleMapClick = (event) => {
         // https://stackoverflow.com/questions/58098038/openlayers-how-do-i-identify-points-with-onclick
         // can make cots clickable via
-
+        //
 
         // get clicked coordinate using mapRef to access current React state inside OpenLayers callback
         //  https://stackoverflow.com/a/60643670
@@ -264,6 +262,10 @@ function MapWrapper(props) {
         // set React state
         // @ts-ignore
         setSelectedCoord(transormedCoord)
+
+        // @ts-ignore
+        props.clicked(event, mapRef.current)
+
     }
 
     // render component

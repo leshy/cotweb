@@ -1,4 +1,5 @@
 import { map, times, flatten } from 'lodash'
+import Map from 'ol/Map'
 import React from 'react';
 import { COT, nameFromCot } from '../base'
 import MapWrapper from './mapWrapper'
@@ -79,12 +80,22 @@ function FeatureFromCOT(cot: COT): Array<Feature> {
         })]
     }
 }
-export function CotMap({ entities, isExpanded }: { entities: { [uid: string]: COT }, isExpanded: string | void }) {
+export function CotMap({ entities, isExpanded, setExpanded }: { setExpanded: Function, entities: { [uid: string]: COT }, isExpanded: string | void }) {
     const features = flatten(map(entities, FeatureFromCOT))
 
     const cot: COT | void = isExpanded ? entities[isExpanded] : undefined
 
-    return <MapWrapper features={features} viewLoc={cot ? [cot.point.lon, cot.point.lat] : undefined} />
+    function clicked(event: Event, map: Map) {
+
+        // @ts-ignore
+        map.forEachFeatureAtPixel(event.pixel, function(feature) {
+            // @ts-ignore
+            const cot: COT | void = feature.get('cot')
+            if (cot) { setExpanded(cot.uid) }
+        })
+    }
+
+    return <MapWrapper features={features} clicked={clicked} viewLoc={cot ? [cot.point.lon, cot.point.lat] : undefined} />
 }
 
 export default CotMap
