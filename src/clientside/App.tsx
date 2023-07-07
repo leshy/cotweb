@@ -41,7 +41,6 @@ function App() {
 
     return <div className="App">
         <CotMap entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} />
-        {reticle}
         <CotList entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} />
     </div>
 }

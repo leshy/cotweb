@@ -1,4 +1,4 @@
-import { map, times, flatten } from 'lodash'
+import { map, times, flatten, head } from 'lodash'
 import Map from 'ol/Map'
 import React from 'react';
 import { COT, nameFromCot } from '../base'
@@ -80,22 +80,43 @@ function FeatureFromCOT(cot: COT): Array<Feature> {
         })]
     }
 }
+
+
+function SelectorFromCOT(cot: COT): Feature {
+    return new Feature({
+        geometry: new Point(fromLonLat([cot.point.lon, cot.point.lat])),
+        objType: 'reticle'
+    })
+}
+
 export function CotMap({ entities, isExpanded, setExpanded }: { setExpanded: Function, entities: { [uid: string]: COT }, isExpanded: string | void }) {
+
     const features = flatten(map(entities, FeatureFromCOT))
+    if (isExpanded) {
+        const reticle = SelectorFromCOT(entities[isExpanded])
+        features.push(reticle)
+    }
 
     const cot: COT | void = isExpanded ? entities[isExpanded] : undefined
 
-    function clicked(event: Event, map: Map) {
-
+    function clickedMap(event: Event, map: Map) {
+        const cots: Array<COT> = []
         // @ts-ignore
         map.forEachFeatureAtPixel(event.pixel, function(feature) {
             // @ts-ignore
             const cot: COT | void = feature.get('cot')
-            if (cot) { setExpanded(cot.uid) }
+            if (cot) { cots.push(cot) }
         })
+        if (cots.length) {
+            setExpanded((head(cots) as COT).uid)
+        } else {
+            setExpanded(undefined)
+        }
     }
 
-    return <MapWrapper features={features} clicked={clicked} viewLoc={cot ? [cot.point.lon, cot.point.lat] : undefined} />
+    return <MapWrapper features={features} clicked={clickedMap} viewLoc={cot ? [cot.point.lon, cot.point.lat] : undefined} />
 }
+
+
 
 export default CotMap

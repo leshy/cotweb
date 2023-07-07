@@ -1,6 +1,6 @@
 // react
 import React, { useState, useEffect, useRef } from 'react';
-import { Circle as CircleStyle, Fill, Stroke, Icon, Text, Style, RegularShape } from 'ol/style.js';
+import { Circle as CircleStyle, Fill, Stroke, Icon, Text, Style, RegularShape } from 'ol/style';
 import Feature from 'ol/Feature.js';
 import { reduce, keys, head, get, times } from 'lodash'
 
@@ -73,6 +73,17 @@ function MapWrapper(props) {
                 })
             }),
 
+            types: {
+                reticle: new Style({
+                    image: new Icon({
+                        src: 'images/reticle.svg',
+                        scale: 1,
+                        rotation: 0
+                    })
+                })
+            },
+
+
             default: new Style({
                 stroke: new Stroke({
                     color: [50, 50, 100, 0.75],
@@ -80,7 +91,7 @@ function MapWrapper(props) {
                 }),
                 fill: new Fill({
                     color: [50, 50, 100, 0.125],
-                })
+                }),
             })
         }
 
@@ -104,6 +115,12 @@ function MapWrapper(props) {
         }
 
         const styleFunction = function(feature: Feature, resolution: number): Style | void {
+            const objType = feature.get('objType')
+            if (objType) {
+                // @ts-ignore
+                return styles.types[objType]
+            }
+
             if (resolution < 25) {
                 const cot = feature.get('cot') as COT
                 if (cot) {
@@ -237,9 +254,9 @@ function MapWrapper(props) {
             // fit map to feature extent (with 100px of padding)
             // @ts-ignore
             /* map.getView().fit(featuresLayer.getSource().getExtent(), {
-*     padding: [100, 100, 100, 100]
-* })
- */
+    *     padding: [100, 100, 100, 100]
+    * })
+    */
         }
 
     }, [props.features])
