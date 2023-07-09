@@ -17,7 +17,7 @@ import XYZ from 'ol/source/XYZ'
 import KML from 'ol/format/KML.js';
 import { fromLonLat } from 'ol/proj.js';
 import { transform } from 'ol/proj'
-import { toStringXY } from 'ol/coordinate';
+import { Coordinate, toStringXY } from 'ol/coordinate';
 
 import { cotEntity } from "../../cotParser/cotEntityEnum"
 import * as types from '../../types'
@@ -262,12 +262,52 @@ function MapWrapper(props) {
 
     }, [props.features])
     useEffect(() => {
+        function flyTo(location: Coordinate, targetzoom: number, done: Function) {
+            // @ts-ignore
+            const view = map.getView()
+
+            const duration = 4000;
+            const zoom = targetzoom
+            let parts = 2;
+            let called = false;
+
+            function callback(complete: boolean) {
+                --parts;
+                if (called) {
+                    return;
+                }
+                if (parts === 0 || !complete) {
+                    called = true;
+                    done(complete);
+                }
+            }
+            view.animate(
+                {
+                    center: location,
+                    duration: duration,
+                },
+                callback
+            );
+            view.animate(
+                {
+                    zoom: zoom - 1,
+                    duration: duration / 2,
+                },
+                {
+                    zoom: zoom,
+                    duration: duration / 2,
+                },
+                callback
+            );
+        }
+
         if (props.viewLoc) {
             // @ts-ignore
             const view = map.getView()
             setTimeout(() => {
                 view.cancelAnimations()
-                const targetZoom = (props.viewZoom || 17)
+                const targetZoom = (props.viewZoom || 16)
+                //                flyTo(fromLonLat(props.viewLoc), targetZoom, () => { })
                 view.animate({
                     zoom: (view.getZoom() > targetZoom) ? view.getZoom() : targetZoom,
                     center: fromLonLat(props.viewLoc),
