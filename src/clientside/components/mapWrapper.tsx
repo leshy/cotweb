@@ -92,11 +92,11 @@ function MapWrapper(props) {
 
             default: new Style({
                 stroke: new Stroke({
-                    color: [50, 50, 100, 0.75],
+                    color: [50, 50, 100, 1],
                     width: 2,
                 }),
                 fill: new Fill({
-                    color: [50, 50, 100, 0.125],
+                    color: [50, 50, 100, 0.25],
                 }),
             })
         }

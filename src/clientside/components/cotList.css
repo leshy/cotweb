@@ -73,8 +73,8 @@ li:hover {
 }
 
 #cotDetailsCloser {
+  font-size: 3em;
   position: absolute;
-  font-size: 2em;
   top: 0;
   right: 0;
   cursor: pointer;
@@ -89,11 +89,15 @@ li:hover {
 
 #cotDetailsOpener {
   position: absolute;
-  font-size: 2em;
-  top: 0;
+  font-size: 3em;
+  top: -0.25em;
   right: -1em;
   cursor: pointer;
   color: white;
+}
+
+#cotDetailsOpener:hover {
+  color: red;
 }
 
 #cotDetailsCloser:hover {

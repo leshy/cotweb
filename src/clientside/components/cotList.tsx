@@ -35,7 +35,6 @@ function ExpandedCotEntry({ entity, setOpenDetails }: { entity: COT, setOpenDeta
 
 export function CotList({ entities, setExpanded, isExpanded }: { entities: { [uid: string]: COT }, isExpanded: string | void, setExpanded: Function }) {
     const [openDetails, setOpenDetails] = useState<boolean>(false);
-    console.log("COTLIST", entities, isExpanded)
 
     const handler = (uid: string) =>
         (uid == isExpanded) ? setExpanded(undefined) : setExpanded(uid)

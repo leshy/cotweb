@@ -53,11 +53,6 @@ export const init = async () => {
         },
         mqtt: {
           enabled: true,
-          server: {
-            enabled: true,
-            tcp: { enabled: true },
-            ws: { enabled: true }
-          }
         }
       }
     }
