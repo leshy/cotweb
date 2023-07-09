@@ -18,21 +18,24 @@ const theme = require('react-json-pretty/themes/adventure_time.css');
 
 type Callback = (uid: string) => any
 
-function CotEntry({ entity, callback, isExpanded }: { entity: COT, callback: Callback, isExpanded: void | string }) {
+function CotEntry({ entity, callback, isExpanded, setOpenDetails, openDetails }: { entity: COT, callback: Callback, isExpanded: string | void, isExpandeDetails: boolean, setOpenDetails: Function, openDetails: boolean }) {
     function handler() { callback(entity.uid) }
-    return <li key={entity.uid} onClick={handler} className={(isExpanded == entity.uid) ? "expanded" : ""}>
-        <div className="row">{nameFromCot(entity)}</div>
+    return <li key={entity.uid} className={(isExpanded == entity.uid) ? "expanded" : ""}>
+        {(openDetails == false) && (isExpanded == entity.uid) ? <div onClick={() => setOpenDetails(true)} id="cotDetailsOpener">🞂</div> : null}
+        <div onClick={handler} className="row">{nameFromCot(entity)}</div>
     </li>
 }
 
-function ExpandedCotEntry({ entity }: { entity: COT }) {
-    return <div id="cotDetails" className="cotDetails">
-        <JSONPretty data={renderTimes(entity)} theme={theme} ></JSONPretty>
+function ExpandedCotEntry({ entity, setOpenDetails }: { entity: COT, setOpenDetails: Function }) {
+    return <div id="cotDetails" className="cotDetails" >
+        <div onClick={() => setOpenDetails(false)} id="cotDetailsCloser">🞀</div>
+        <JSONPretty data={renderTimes(entity)} theme={theme} />
     </div>
 }
 
 export function CotList({ entities, setExpanded, isExpanded }: { entities: { [uid: string]: COT }, isExpanded: string | void, setExpanded: Function }) {
-    //    const [isExpanded, setExpanded] = useState<string | void>(undefined);
+    const [openDetails, setOpenDetails] = useState<boolean>(false);
+    console.log("COTLIST", entities, isExpanded)
 
     const handler = (uid: string) =>
         (uid == isExpanded) ? setExpanded(undefined) : setExpanded(uid)
@@ -40,12 +43,12 @@ export function CotList({ entities, setExpanded, isExpanded }: { entities: { [ui
     const listItems: Array<React.JSX.Element> = map(
         entities,
         // @ts-ignore
-        ((entity: COT) => <CotEntry key={entity.uid} entity={entity} isExpanded={isExpanded} callback={handler} />))
+        ((entity: COT) => <CotEntry key={entity.uid} entity={entity} isExpanded={isExpanded} openDetails={openDetails} setOpenDetails={setOpenDetails} callback={handler} />))
 
 
     return <div className="container">
         <div className="cotList"><ul>{listItems}</ul></div>
-        {isExpanded ? <ExpandedCotEntry entity={entities[isExpanded]} /> : <div />}
+        {(isExpanded && openDetails) ? <ExpandedCotEntry setOpenDetails={setOpenDetails} entity={entities[isExpanded]} /> : <div />}
     </div>
 
 }

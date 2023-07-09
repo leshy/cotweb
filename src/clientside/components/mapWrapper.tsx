@@ -148,23 +148,6 @@ function MapWrapper(props) {
         // create map
         const initialMap = new Map({
             target: mapElement.current,
-            layers: [
-
-                /*
-                *                 new TileLayer({
-                *                     className: 'bw',
-                *                     source: new OSM()
-                *                 })
-                *  */
-                // Google Maps Terrain
-                /* new TileLayer({
-                  source: new XYZ({
-                    url: 'http://mt0.google.com/vt/lyrs=p&hl=en&x={x}&y={y}&z={z}',
-                  })
-                }), */
-
-
-            ],
             view: new View({
                 projection: 'EPSG:3857',
                 center: [0, 0],
@@ -246,12 +229,7 @@ function MapWrapper(props) {
         })
 
         initialMap.setLayerGroup(layerGroups[MapLayer.Sat]);
-        /*
-        *         initialMap.addLayer(satLayer)
-        *         initialMap.addLayer(customTiles)
-        *         initialMap.addLayer(kmlLayer)
-        *         initialMap.addLayer(initalFeaturesLayer)
-        *  */
+
         // set map onclick handler
         initialMap.on('click', handleMapClick)
 
@@ -260,19 +238,17 @@ function MapWrapper(props) {
         setMap(initialMap)
         // @ts-ignore
         setFeaturesLayer(initalFeaturesLayer)
-
     }, [])
 
+    useEffect(() => {
+        if (map) {
+            // @ts-ignore
+            map.setLayerGroup(layerGroups[props.mapLayer])
+        }
+    }, [props.mapLayer])
 
     // update map if features prop changes - logic formerly put into componentDidUpdate
     useEffect(() => {
-        if (props.mapLayer) {
-            if (map) {
-                // @ts-ignore
-                map.setLayerGroup(layerGroups[props.mapLayer])
-            }
-
-        }
 
         if (props.features.length) { // may be null on first render
             // set features to map
@@ -284,24 +260,30 @@ function MapWrapper(props) {
             )
         }
 
+    }, [props.features])
+    useEffect(() => {
         if (props.viewLoc) {
             // @ts-ignore
             const view = map.getView()
             setTimeout(() => {
                 view.cancelAnimations()
-                view.animate({ zoom: props.viewZoom || 17, center: fromLonLat(props.viewLoc), duration: 1000 })
+                const targetZoom = (props.viewZoom || 17)
+                view.animate({
+                    zoom: (view.getZoom() > targetZoom) ? view.getZoom() : targetZoom,
+                    center: fromLonLat(props.viewLoc),
+                    duration: 1000
+                })
+
             }, 0)
             //view.animate({ zoom: props.viewZoom || 18, center: fromLonLat(props.viewLoc), duration: 1000 })
         }
-
-    }, [props.features])
+    }, [props.viewLoc])
 
     // map click handler
     // @ts-ignore
     const handleMapClick = (event) => {
         // https://stackoverflow.com/questions/58098038/openlayers-how-do-i-identify-points-with-onclick
         // can make cots clickable via
-        //
 
         // get clicked coordinate using mapRef to access current React state inside OpenLayers callback
         //  https://stackoverflow.com/a/60643670

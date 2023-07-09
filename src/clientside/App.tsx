@@ -26,6 +26,7 @@ import { COT } from './base'
 import CotMap from './components/cotMap'
 import CotList from './components/cotList'
 import MapLayerSelector from './components/mapLayerSelector'
+import CamView from './components/camView'
 import { MapLayer } from './types'
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
         <CotMap entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} mapLayer={mapLayer} />
         <CotList entities={entities} isExpanded={isExpanded} setExpanded={setExpanded} />
         <MapLayerSelector setMapLayer={setMapLayer} mapLayer={mapLayer} />
+        <CamView entities={entities} isExpanded={isExpanded} />
     </div>
 }
 
