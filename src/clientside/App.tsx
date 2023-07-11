@@ -61,7 +61,7 @@ const entities: { [uid: string]: COT } = {}
 async function comms(callback: (entities: { [uid: string]: COT }) => void) {
     let mqttConnection = mqtt_client()
         // @ts-ignore
-        .with_websock('ws://' + window.document.location.host)
+        .with_websock('ws://' + location.host)
         // or .with_tcp('tcp://test.mosquitto.org:1883')
         .with_autoreconnect()
 

@@ -48,6 +48,9 @@ export const init = async () => {
             port: 8087
           }
         },
+        webServer: {
+          port: 3001
+        },
         mqttCot: {
           enabled: true
         },

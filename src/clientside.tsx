@@ -20,8 +20,7 @@ const root = ReactDOMClient.createRoot(container as HTMLElement)
 // Initial render: Render an element to the root
 root.render(
     <App />
-);
-
+)
 
 
 /* async function comms() {

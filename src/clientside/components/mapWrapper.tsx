@@ -306,7 +306,7 @@ function MapWrapper(props) {
             const view = map.getView()
             setTimeout(() => {
                 view.cancelAnimations()
-                const targetZoom = (props.viewZoom || 16)
+                const targetZoom = (props.viewZoom || 17)
                 //                flyTo(fromLonLat(props.viewLoc), targetZoom, () => { })
                 view.animate({
                     zoom: (view.getZoom() > targetZoom) ? view.getZoom() : targetZoom,
