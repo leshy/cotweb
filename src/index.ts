@@ -55,8 +55,19 @@ export const init = async () => {
           enabled: true
         },
         mqtt: {
-          enabled: true,
-        }
+          client: {
+            enabled: false,
+            host: "localhost",
+            port: 1883
+          },
+          server: {
+            enabled: true,
+            tcp: {
+              enabled: true,
+              port: 1884
+            }
+          }
+        },
       }
     }
   })

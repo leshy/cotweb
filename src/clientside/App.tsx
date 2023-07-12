@@ -58,6 +58,10 @@ function nameFromCot(cot: COT): string {
 
 const entities: { [uid: string]: COT } = {}
 
+// @ts-ignore
+window.entities = entities
+
+
 async function comms(callback: (entities: { [uid: string]: COT }) => void) {
     let mqttConnection = mqtt_client()
         // @ts-ignore

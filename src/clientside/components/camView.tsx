@@ -21,7 +21,6 @@ export function CamView({ entities, isExpanded }: { entities: { [uid: string]: C
 
     const entity = entities[isExpanded]
     const url = getUrl(entity)
-    console.log("URL", url)
     if (!url) return null
 
     // @ts-ignore

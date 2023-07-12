@@ -51,13 +51,17 @@ function FeatureFromCOT(cot: COT): Array<Feature> {
 
         const resolution = 8
 
-        return [
+        const point = new Feature({
+            geometry: new Point(fromLonLat([cot.point.lon, cot.point.lat])),
+            name: cot.uid,
+            cot: cot
+        })
 
-            new Feature({
-                geometry: new Point(fromLonLat([cot.point.lon, cot.point.lat])),
-                name: cot.uid,
-                cot: cot
-            }),
+        // @ts-ignore
+        if (cot.detail.sensor.hideFov === 'false') { return [point] }
+
+        return [
+            point,
 
             new Feature({
                 geometry: new Polygon([[
