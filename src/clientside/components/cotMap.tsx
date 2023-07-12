@@ -58,7 +58,7 @@ function FeatureFromCOT(cot: COT): Array<Feature> {
         })
 
         // @ts-ignore
-        if (cot.detail.sensor.hideFov === 'false') { return [point] }
+        if (cot.detail.sensor.hideFov === 'true') { return [point] }
 
         return [
             point,
