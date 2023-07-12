@@ -24,7 +24,11 @@ export function CamView({ entities, isExpanded }: { entities: { [uid: string]: C
     if (!url) return null
 
     // @ts-ignore
-    return <div className="camView"><img src={url} /></div>
+    return <div className="camView">
+        <video controls>
+            <source src="{url}" type="application/x-mpegURL" />
+        </video>
+    </div>
 }
 
 export default CamView
