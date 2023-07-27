@@ -61,7 +61,6 @@ const entities: { [uid: string]: COT } = {}
 // @ts-ignore
 window.entities = entities
 
-
 async function comms(callback: (entities: { [uid: string]: COT }) => void) {
     let mqttConnection = mqtt_client()
         // @ts-ignore
@@ -81,7 +80,7 @@ async function comms(callback: (entities: { [uid: string]: COT }) => void) {
                 return
             }
 
-            console.log('COT update', nameFromCot(cot), cot)
+            //console.log('COT update', nameFromCot(cot), cot)
 
             entities[cot.uid] = cot
             callback(clone(entities))

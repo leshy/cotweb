@@ -1,7 +1,12 @@
 import { SubSystem, RunningSubSystem, COT, Logger } from '../types';
 import { EventEmitter } from "events";
-
 export type Config = {}
+
+/*
+ * Pulls async streams provided by COT server connections
+ * Maintains cot entities dict Map<string, COT>
+ * Acts as an eventEmitter (in the future it could also implement an async stream as output)
+ */
 
 export class CotPipeline extends EventEmitter implements RunningSubSystem {
     entities: Map<string, COT> = new Map()

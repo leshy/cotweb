@@ -2,6 +2,13 @@ import * as Mqtt from './mqtt'
 import { cotPipeline } from './cotPipeline'
 import { COT, SubSystem, RunningSubSystem, Logger } from '../types';
 
+/*
+ * MQTTcot takes an mqtt (connection or server) and COT pipeline
+ * and forwards COT changes to mqtt /cot/uid topic
+ *
+ */
+
+
 export type Config = {
     enabled: boolean
 }
@@ -9,10 +16,8 @@ export type Config = {
 export class MqttTranslator implements RunningSubSystem {
     constructor(public readonly config: Config, public readonly logger: Logger) {
     }
-
     stop = () => { return Promise.resolve() }
 }
-
 
 export const mqttCot: SubSystem<Config, MqttTranslator> = {
     name: 'mqttCot',

@@ -27,7 +27,6 @@ type COT = types.COT & {
     feature?: Array<Feature>
 }
 
-
 let layerGroups: { [key: string]: Group } = {}
 
 // @ts-ignore

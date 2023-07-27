@@ -12,13 +12,11 @@ export const defaultConfig: Config = {
 
 export const connect = async (logger: logger.Logger, config: Config): Promise<types.Connection> => {
     const client = new net.Socket();
-
     const cfg = { ...defaultConfig, ...config }
-    console.log("CFG IS", cfg)
+
     // @ts-ignore
     client.connect(cfg, function() {
         logger.info('TCP connection established with the COT server.')
-        client.write('Hello, server.');
     })
 
     client.on('end', function() {

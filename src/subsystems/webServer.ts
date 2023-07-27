@@ -6,6 +6,13 @@ import createError from 'http-errors'
 
 import { SubSystem, RunningSubSystem, Logger } from '../types';
 
+/*
+ * webServer just creates a simple http server serving /web/static and /web/views dirs
+ * it is usually further specialized by other subsystems, like mqttServer implements websockets via webServer
+ */
+
+
+
 export type Config = {
     port: number
     clientside: {
